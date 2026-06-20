@@ -1,0 +1,46 @@
+[project]
+name = "trading-bot"
+version = "0.1.0"
+description = "Strategy research and live-validation trading platform (Binance)"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "python-binance>=1.0.19",
+    "pandas>=2.0",
+    "pyarrow>=15.0",
+    "sqlalchemy>=2.0",
+    "alembic>=1.13",
+    "psycopg2-binary>=2.9",
+    "pydantic>=2.6",
+    "pydantic-settings>=2.2",
+    "structlog>=24.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.4",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/trading_bot"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-ra"
+markers = [
+    "integration: tests that hit the live Binance API or a real database",
+]

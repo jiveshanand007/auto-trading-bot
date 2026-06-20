@@ -3,3 +3,8 @@
 __pycache__/
 *.pyc
 .env
+.venv/
+data/
+*.parquet
+.pytest_cache/
+.ruff_cache/
