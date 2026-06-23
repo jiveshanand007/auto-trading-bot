@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "trading-bot": {
+      "command": "uv",
+      "args": ["run", "python", "-m", "trading_bot.mcp_server"],
+      "cwd": "/home/jivesh/projects/auto-trading-bot"
+    }
+  }
+}

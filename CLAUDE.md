@@ -50,6 +50,28 @@ uv run python -m trading_bot.market_data.download_cli \
     --start 2024-01-01 --end 2024-02-01
 ```
 
+## Live trading (testnet)
+
+Place trades from the terminal:
+
+```bash
+uv run trade buy  BTCUSDT 0.001 --sl 95000 --tp 105000
+uv run trade sell BTCUSDT 0.001 --sl 105000 --tp 95000
+uv run trade orders            # list open orders
+uv run trade orders BTCUSDT    # filter by symbol
+uv run trade balance           # show account balances
+uv run trade cancel BTCUSDT 12345678
+```
+
+Or via Claude (MCP server must be registered — see below):
+> "Buy 0.001 BTC with stop loss at 95000 and take profit at 105000"
+
+MCP server: `uv run python -m trading_bot.mcp_server`
+
+Testnet setup (one-time):
+1. Go to testnet.binance.vision → log in with GitHub → generate API key
+2. Add to `.env`: BOT_BINANCE_API_KEY, BOT_BINANCE_API_SECRET, BOT_BINANCE_TESTNET=true
+
 ## Database — IMPORTANT: local Postgres, NOT Docker
 
 This dev machine (WSL2 Ubuntu 22.04) runs a **locally-installed system
@@ -123,9 +145,10 @@ Parquet data lands in `data/symbol=<SYM>/timeframe=<TF>/data.parquet`.
 
 - **Week 1 — Foundations & data: DONE.** Scaffold, config, logging, canonical
   `Bar`, parquet store, Binance klines downloader, DB schema (8 tables w/ `account_id`).
-- **Week 2 — NEXT:** `Strategy` interface (`on_bar → Signal`), `Broker` interface +
-  `SimulatedBroker` (fees + slippage), event-driven backtest loop, MA-crossover
-  strategy. Done = backtest runs end-to-end and produces a trade log.
+- **Week 2 — IN PROGRESS (pivoted to live trading demo):** Building live-trading
+  capability ahead of schedule — `trade` CLI (typer + rich), Binance testnet broker,
+  MCP server so Claude can place orders conversationally. Backtest loop (`Strategy`,
+  `SimulatedBroker`, MA-crossover) remains on the roadmap but follows live wiring.
 - **Weeks 3–8:** analytics/research → risk & portfolio → live data + Binance broker
   (testnet) → live runtime + reliability → go-live (tiny capital) → Streamlit
   dashboard. See the spec for each week's deliverables.
