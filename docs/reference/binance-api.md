@@ -89,38 +89,58 @@ POST /api/v3/order
   symbol, side (BUY|SELL), type=MARKET, quantity
 ```
 
-### Place OCO Order — New Format (TRADE)
+### Place OTOCO Order — Entry + SL + TP atomic (TRADE) ← what this bot uses
+
+```
+POST /api/v3/orderList/otoco
+```
+
+Single atomic call: working order (entry) + pending OCO (SL + TP). If the OCO
+setup would fail, the entry order is also rejected — no orphaned positions.
+
+For a **BUY entry** (long position):
+```
+symbol                  = BTCUSDT
+workingType             = MARKET
+workingSide             = BUY
+workingQuantity         = 0.0016
+pendingSide             = SELL
+pendingQuantity         = 0.0016
+pendingAboveType        = LIMIT_MAKER        # take-profit (price rises)
+pendingAbovePrice       = <take_profit>
+pendingBelowType        = STOP_LOSS_LIMIT    # stop-loss (price drops)
+pendingBelowStopPrice   = <stop_loss>
+pendingBelowPrice       = <stop_loss * 0.999>
+pendingBelowTimeInForce = GTC
+```
+
+For a **SELL entry** (closing a long / short spot):
+```
+symbol                  = BTCUSDT
+workingType             = MARKET
+workingSide             = SELL
+workingQuantity         = 0.0016
+pendingSide             = BUY
+pendingQuantity         = 0.0016
+pendingAboveType        = STOP_LOSS_LIMIT    # stop-loss (price rises)
+pendingAboveStopPrice   = <stop_loss>
+pendingAbovePrice       = <stop_loss * 1.001>
+pendingAboveTimeInForce = GTC
+pendingBelowType        = LIMIT_MAKER        # take-profit (price drops)
+pendingBelowPrice       = <take_profit>
+```
+
+Response includes `orderReports[]` — index 0 is the working (entry) order with `fills[]`.
+
+---
+
+### Place OCO Only (no entry) — TRADE
+
 ```
 POST /api/v3/orderList/oco
 ```
 
-**Required params (as of 2024+ API):**
-
-For a **SELL OCO** (after a BUY entry — protecting a long position):
-```
-symbol       = BTCUSDT
-side         = SELL
-quantity     = 0.0016
-aboveType    = LIMIT_MAKER          # take-profit leg (triggers when price rises)
-abovePrice   = <take_profit>
-belowType    = STOP_LOSS_LIMIT      # stop-loss leg (triggers when price drops)
-belowStopPrice = <stop_loss>
-belowPrice   = <stop_loss * 0.999>  # limit price after stop triggers
-belowTimeInForce = GTC
-```
-
-For a **BUY OCO** (after a SELL entry — protecting a short position):
-```
-symbol       = BTCUSDT
-side         = BUY
-quantity     = 0.0016
-aboveType    = STOP_LOSS_LIMIT      # stop-loss leg (triggers when price rises)
-aboveStopPrice = <stop_loss>
-abovePrice   = <stop_loss * 1.001>
-aboveTimeInForce = GTC
-belowType    = LIMIT_MAKER          # take-profit leg (triggers when price drops)
-belowPrice   = <take_profit>
-```
+Use this only to add SL+TP to an already-open position. Requires `aboveType`/`belowType` params.
 
 > **Note:** Old `create_oco_order()` in python-binance uses legacy params without `aboveType`/`belowType`
 > and will fail with `-1102` on the demo and newer live API.

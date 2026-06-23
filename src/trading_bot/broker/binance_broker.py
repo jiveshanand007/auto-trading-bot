@@ -55,8 +55,9 @@ class BinanceBroker:
         take_profit: float,
     ) -> TradeResult:
         try:
-            raw_price = self._client.get_symbol_ticker(symbol=symbol)["price"]
-            current_price = float(raw_price)
+            current_price = float(
+                self._client.get_symbol_ticker(symbol=symbol)["price"]
+            )
         except (BinanceAPIException, BinanceOrderException) as exc:
             raise BrokerError(str(exc), original=exc) from exc
 
@@ -76,75 +77,73 @@ class BinanceBroker:
         else:
             raise ValueError(f"side must be 'BUY' or 'SELL', got {side!r}")
 
+        # Single atomic OTOCO: entry market order + OCO (SL+TP) placed together.
+        # If the OCO setup fails, the working order is also rejected — no orphaned positions.
+        if side_upper == "BUY":
+            data = {
+                "symbol": symbol,
+                "workingType": "MARKET",
+                "workingSide": "BUY",
+                "workingQuantity": str(quantity),
+                "pendingSide": "SELL",
+                "pendingQuantity": str(quantity),
+                "pendingAboveType": "LIMIT_MAKER",
+                "pendingAbovePrice": str(take_profit),
+                "pendingBelowType": "STOP_LOSS_LIMIT",
+                "pendingBelowStopPrice": str(stop_loss),
+                "pendingBelowPrice": str(round(stop_loss * 0.999, 2)),
+                "pendingBelowTimeInForce": "GTC",
+            }
+        else:
+            data = {
+                "symbol": symbol,
+                "workingType": "MARKET",
+                "workingSide": "SELL",
+                "workingQuantity": str(quantity),
+                "pendingSide": "BUY",
+                "pendingQuantity": str(quantity),
+                "pendingAboveType": "STOP_LOSS_LIMIT",
+                "pendingAboveStopPrice": str(stop_loss),
+                "pendingAbovePrice": str(round(stop_loss * 1.001, 2)),
+                "pendingAboveTimeInForce": "GTC",
+                "pendingBelowType": "LIMIT_MAKER",
+                "pendingBelowPrice": str(take_profit),
+            }
+
         try:
-            if side_upper == "BUY":
-                order = self._client.order_market_buy(symbol=symbol, quantity=quantity)
-            else:
-                order = self._client.order_market_sell(symbol=symbol, quantity=quantity)
+            resp = self._client._post("orderList/otoco", True, data=data)
         except (BinanceAPIException, BinanceOrderException) as exc:
             raise BrokerError(str(exc), original=exc) from exc
 
-        order_id = order["orderId"]
+        order_reports = resp.get("orderReports", [])
+        working = order_reports[0] if order_reports else {}
+        entry_order_id = working.get("orderId", 0)
 
-        fills = order.get("fills", [])
+        fills = working.get("fills", [])
         if fills:
             total_qty = sum(float(f["qty"]) for f in fills)
             total_val = sum(float(f["price"]) * float(f["qty"]) for f in fills)
             entry_price = total_val / total_qty
         else:
-            entry_price = float(order.get("price", 0))
-
-        try:
-            for _ in range(_FILL_RETRIES):
-                status = self._client.get_order(symbol=symbol, orderId=order_id)
-                if status["status"] == "FILLED":
-                    break
-                time.sleep(_FILL_SLEEP)
-            else:
-                log.warning("order not filled after retries", order_id=order_id)
-        except (BinanceAPIException, BinanceOrderException) as exc:
-            raise BrokerError(str(exc), original=exc) from exc
-
-        # New Binance OCO API (orderList/oco) requires aboveType/belowType.
-        # BUY entry → SELL OCO: TP is a LIMIT_MAKER above price, SL is STOP_LOSS_LIMIT below.
-        # SELL entry → BUY OCO: SL is STOP_LOSS_LIMIT above price, TP is LIMIT_MAKER below.
-        try:
-            if side_upper == "BUY":
-                oco_resp = self._client._post("orderList/oco", True, data={
-                    "symbol": symbol,
-                    "side": "SELL",
-                    "quantity": str(quantity),
-                    "aboveType": "LIMIT_MAKER",
-                    "abovePrice": str(take_profit),
-                    "belowType": "STOP_LOSS_LIMIT",
-                    "belowStopPrice": str(stop_loss),
-                    "belowPrice": str(round(stop_loss * 0.999, 2)),
-                    "belowTimeInForce": "GTC",
-                })
-            else:
-                oco_resp = self._client._post("orderList/oco", True, data={
-                    "symbol": symbol,
-                    "side": "BUY",
-                    "quantity": str(quantity),
-                    "aboveType": "STOP_LOSS_LIMIT",
-                    "aboveStopPrice": str(stop_loss),
-                    "abovePrice": str(round(stop_loss * 1.001, 2)),
-                    "aboveTimeInForce": "GTC",
-                    "belowType": "LIMIT_MAKER",
-                    "belowPrice": str(take_profit),
-                })
-        except (BinanceAPIException, BinanceOrderException) as exc:
-            raise BrokerError(str(exc), original=exc) from exc
-
-        oco_order_list_id = oco_resp["orderListId"]
+            # MARKET fills usually land in the response; poll as fallback
+            entry_price = 0.0
+            try:
+                for _ in range(_FILL_RETRIES):
+                    status = self._client.get_order(symbol=symbol, orderId=entry_order_id)
+                    if status["status"] == "FILLED":
+                        entry_price = float(status.get("avgPrice") or status.get("price", 0))
+                        break
+                    time.sleep(_FILL_SLEEP)
+            except (BinanceAPIException, BinanceOrderException) as exc:
+                log.warning("could not poll fill price", error=str(exc))
 
         return TradeResult(
             symbol=symbol,
             side=side_upper,
             quantity=quantity,
             entry_price=entry_price,
-            entry_order_id=order_id,
-            oco_order_list_id=oco_order_list_id,
+            entry_order_id=entry_order_id,
+            oco_order_list_id=resp["orderListId"],
             stop_loss=stop_loss,
             take_profit=take_profit,
         )

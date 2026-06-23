@@ -35,18 +35,43 @@ Single broker implementation, two thin interface layers. The existing `Settings`
 
 **Responsibilities:**
 1. Accept a trade request: symbol, side (BUY/SELL), quantity, stop_loss price, take_profit price
-2. Place a market order to enter the position
-3. On fill confirmation, place an OCO order:
-   - Take-profit leg: limit order at `take_profit`
-   - Stop-loss leg: stop-limit order at `stop_loss` (limit = stop_loss × 0.999 to ensure fill)
-4. Return a `TradeResult` dataclass: entry fill price, entry order ID, OCO order list ID
+2. Validate SL/TP against current market price before sending anything
+3. Place a single **OTOCO** (One-Triggers-a-One-Cancels-the-Other) order:
+   - Working leg: MARKET order (the entry)
+   - Pending above: LIMIT_MAKER at `take_profit` (for BUY entry)
+   - Pending below: STOP_LOSS_LIMIT at `stop_loss` (for BUY entry)
+4. Return a `TradeResult` dataclass: entry fill price, entry order ID, OTOCO order list ID
+
+**Trade flow:**
+
+```
+validate SL/TP vs market price
+        ↓
+POST /api/v3/orderList/otoco   ← single atomic call
+        ↓
+┌─ working: MARKET BUY ────────── fills immediately
+│
+└─ pending OCO (auto-activates on fill):
+   ├─ LIMIT_MAKER    @ take_profit   ← take profit
+   └─ STOP_LOSS_LIMIT @ stop_loss   ← stop loss
+        ↓
+extract fill price from orderReports[0].fills
+(poll GET /api/v3/order as fallback if fills absent)
+        ↓
+return TradeResult
+```
+
+**Why OTOCO instead of market + OCO separately:**
+- Atomic: if the SL/TP setup would fail, the entry order is also rejected — no orphaned positions
+- One network round trip instead of two
+- No race window between fill and OCO placement
 
 **Key design decisions:**
-- OCO is placed synchronously after market fill (REST poll for fill, max 5s / 10 retries)
 - No position persistence to DB in this iteration — that comes with the backtest integration
 - Raises `BrokerError` (custom exception) on any Binance API error, with the raw error attached
-
-**Binance testnet base URL:** `https://testnet.binance.vision/api`
+- Base URL is config-driven: `BOT_BINANCE_TESTNET_URL` / `BOT_BINANCE_LIVE_URL` in `.env`
+  - demo.binance.com keys → `https://demo-api.binance.com/api`
+  - testnet.binance.vision keys → `https://testnet.binance.vision/api` (default)
 
 ---
 
@@ -102,10 +127,10 @@ Claude usage example:
 
 | Scenario | Behaviour |
 |----------|-----------|
-| Binance API error on market order | Raise `BrokerError`, surface message to CLI/MCP, no OCO placed |
-| Market order fills but OCO fails | Log warning with order ID; user must cancel/manage manually; surface clearly |
+| Binance API error on OTOCO call | Raise `BrokerError`; because it's atomic, **no position is opened** |
 | Invalid SL/TP (e.g. SL above entry for a BUY) | Validate before sending, raise `ValueError` with clear message |
-| Missing API keys | Raise `ConfigError` at broker init time with setup instructions |
+| Missing API keys | pydantic-settings raises `ValidationError` at broker init time |
+| Fill price missing from response | Poll `GET /api/v3/order` up to 5s; log warning if still unavailable |
 
 ---
 
