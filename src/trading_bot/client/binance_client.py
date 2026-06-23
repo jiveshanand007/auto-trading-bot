@@ -77,14 +77,18 @@ class BinanceBroker:
         else:
             raise ValueError(f"side must be 'BUY' or 'SELL', got {side!r}")
 
-        # Single atomic OTOCO: entry market order + OCO (SL+TP) placed together.
-        # If the OCO setup fails, the working order is also rejected — no orphaned positions.
+        # Single atomic OTOCO: entry + OCO (SL+TP) placed together.
+        # OTOCO does not support workingType=MARKET — use LIMIT with a 0.1% aggressive
+        # price so it fills immediately like a market order on liquid pairs.
         if side_upper == "BUY":
+            working_price = round(current_price * 1.001, 2)  # pay up to 0.1% over ask
             data = {
                 "symbol": symbol,
-                "workingType": "MARKET",
+                "workingType": "LIMIT",
                 "workingSide": "BUY",
+                "workingPrice": str(working_price),
                 "workingQuantity": str(quantity),
+                "workingTimeInForce": "GTC",
                 "pendingSide": "SELL",
                 "pendingQuantity": str(quantity),
                 "pendingAboveType": "LIMIT_MAKER",
@@ -95,11 +99,14 @@ class BinanceBroker:
                 "pendingBelowTimeInForce": "GTC",
             }
         else:
+            working_price = round(current_price * 0.999, 2)  # sell down to 0.1% under bid
             data = {
                 "symbol": symbol,
-                "workingType": "MARKET",
+                "workingType": "LIMIT",
                 "workingSide": "SELL",
+                "workingPrice": str(working_price),
                 "workingQuantity": str(quantity),
+                "workingTimeInForce": "GTC",
                 "pendingSide": "BUY",
                 "pendingQuantity": str(quantity),
                 "pendingAboveType": "STOP_LOSS_LIMIT",
