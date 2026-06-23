@@ -39,10 +39,11 @@ class BinanceBroker:
     def __init__(self, settings: Settings | None = None):
         self._settings = settings or get_settings()
         s = self._settings
-        self._client = Client(
-            s.binance_api_key,
-            s.binance_api_secret,
-            testnet=s.binance_testnet,
+        self._client = Client(s.binance_api_key, s.binance_api_secret)
+        # python-binance 1.0.x testnet=True doesn't reroute the sync Client;
+        # use the URL from config so it's overridable without a code change.
+        self._client.API_URL = (
+            s.binance_testnet_url if s.binance_testnet else s.binance_live_url
         )
 
     def place_trade(

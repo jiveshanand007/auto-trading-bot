@@ -36,7 +36,7 @@ def test_buy_command_success():
 
     with patch(_PATCH, return_value=mock_broker):
         result = runner.invoke(
-            app, ["buy", "BTCUSDT", "0.001", "--sl", "95000", "--tp", "105000"]
+            app, ["buy", "BTCUSDT", "0.001", "--sl", "95000", "--tp", "105000", "--yes"]
         )
 
     assert result.exit_code == 0
@@ -49,7 +49,7 @@ def test_sell_command_success():
 
     with patch(_PATCH, return_value=mock_broker):
         result = runner.invoke(
-            app, ["sell", "BTCUSDT", "0.001", "--sl", "105000", "--tp", "95000"]
+            app, ["sell", "BTCUSDT", "0.001", "--sl", "105000", "--tp", "95000", "--yes"]
         )
 
     assert result.exit_code == 0
@@ -62,7 +62,7 @@ def test_buy_broker_error_exits_nonzero():
 
     with patch(_PATCH, return_value=mock_broker):
         result = runner.invoke(
-            app, ["buy", "BTCUSDT", "0.001", "--sl", "95000", "--tp", "105000"]
+            app, ["buy", "BTCUSDT", "0.001", "--sl", "95000", "--tp", "105000", "--yes"]
         )
 
     assert result.exit_code != 0

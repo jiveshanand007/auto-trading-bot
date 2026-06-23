@@ -38,6 +38,14 @@ class Settings(BaseSettings):
     binance_api_key: str = Field(default="", description="Binance API key (live/testnet).")
     binance_api_secret: str = Field(default="", description="Binance API secret.")
     binance_testnet: bool = Field(default=True, description="Use Binance testnet endpoints.")
+    binance_testnet_url: str = Field(
+        default="https://testnet.binance.vision/api",
+        description="Spot testnet REST base URL (only used when binance_testnet=True).",
+    )
+    binance_live_url: str = Field(
+        default="https://api.binance.com/api",
+        description="Live REST base URL (only used when binance_testnet=False).",
+    )
 
     # --- Logging ---
     log_level: str = Field(default="INFO")
