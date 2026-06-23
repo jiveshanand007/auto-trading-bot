@@ -14,7 +14,7 @@ err_console = Console(stderr=True)
 
 
 def _broker():
-    from trading_bot.broker.binance_broker import BinanceBroker
+    from trading_bot.client.binance_client import BinanceBroker
 
     return BinanceBroker()
 

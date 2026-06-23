@@ -7,9 +7,9 @@ from unittest.mock import MagicMock, patch
 import pytest
 from binance.exceptions import BinanceAPIException
 
-from trading_bot.broker.binance_broker import BinanceBroker, BrokerError, TradeResult
+from trading_bot.client.binance_client import BinanceBroker, BrokerError, TradeResult
 
-_PATCH = "trading_bot.broker.binance_broker.Client"
+_PATCH = "trading_bot.client.binance_client.Client"
 
 
 def _make_broker(mock_client: MagicMock) -> BinanceBroker:

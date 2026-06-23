@@ -6,12 +6,12 @@ from unittest.mock import MagicMock, patch
 
 from typer.testing import CliRunner
 
-from trading_bot.broker.binance_broker import BrokerError, TradeResult
+from trading_bot.client.binance_client import BrokerError, TradeResult
 from trading_bot.trade_cli import app
 
 # The CLI creates the broker via a lazy import inside _broker(), so we must
 # patch at the source module rather than at trade_cli.
-_PATCH = "trading_bot.broker.binance_broker.BinanceBroker"
+_PATCH = "trading_bot.client.binance_client.BinanceBroker"
 
 runner = CliRunner()
 

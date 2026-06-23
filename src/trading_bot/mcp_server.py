@@ -2,7 +2,7 @@ from dataclasses import asdict
 
 from mcp.server.fastmcp import FastMCP
 
-from trading_bot.broker import BinanceBroker, BrokerError
+from trading_bot.client import BinanceBroker, BrokerError
 
 mcp = FastMCP("trading-bot")
 
