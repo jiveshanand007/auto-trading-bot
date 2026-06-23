@@ -10,9 +10,9 @@
     "semantic_hash": "92039fc1eadeb10f2ceceaffa0e1f08e"
   },
   "pyproject.toml": {
-    "mtime": 1781993097.1138222,
-    "ast_hash": "6846312f4c4b8cfffa8ce5571ee859cd",
-    "semantic_hash": "6846312f4c4b8cfffa8ce5571ee859cd"
+    "mtime": 1782240321.4936903,
+    "ast_hash": "3f06a3f1f9ae4d5c376132c41e541228",
+    "semantic_hash": "3f06a3f1f9ae4d5c376132c41e541228"
   },
   "src/trading_bot/__init__.py": {
     "mtime": 1781993118.82981,
@@ -100,9 +100,9 @@
     "semantic_hash": "db89860801a3b9558c2fec1d5bfe3a80"
   },
   "CLAUDE.md": {
-    "mtime": 1781995085.557549,
-    "ast_hash": "01851f41e2fee90afc705a19db5acd3a",
-    "semantic_hash": "01851f41e2fee90afc705a19db5acd3a"
+    "mtime": 1782240349.7785478,
+    "ast_hash": "d25994b81658d514eeaec9e2a95d88cf",
+    "semantic_hash": "d25994b81658d514eeaec9e2a95d88cf"
   },
   "README.md": {
     "mtime": 1781994513.901557,
@@ -123,5 +123,45 @@
     "mtime": 1781981103.6242,
     "ast_hash": "63da3f3db2f2fe33ed95f0c58b634761",
     "semantic_hash": "63da3f3db2f2fe33ed95f0c58b634761"
+  },
+  ".mcp.json": {
+    "mtime": 1782240401.0200045,
+    "ast_hash": "8753562f087e79987f8e0483dbd814a3",
+    "semantic_hash": "8753562f087e79987f8e0483dbd814a3"
+  },
+  "src/trading_bot/broker/__init__.py": {
+    "mtime": 1782240286.7351792,
+    "ast_hash": "2901c22d5009bfe35f6ee9f44a9f52ce",
+    "semantic_hash": "2901c22d5009bfe35f6ee9f44a9f52ce"
+  },
+  "src/trading_bot/broker/binance_broker.py": {
+    "mtime": 1782240296.105385,
+    "ast_hash": "53530961dac7bdb0644a70c8b30a3f22",
+    "semantic_hash": "53530961dac7bdb0644a70c8b30a3f22"
+  },
+  "src/trading_bot/mcp_server.py": {
+    "mtime": 1782240289.1296568,
+    "ast_hash": "4e771e5f0519c41d31c17c2734d689ce",
+    "semantic_hash": "4e771e5f0519c41d31c17c2734d689ce"
+  },
+  "src/trading_bot/trade_cli.py": {
+    "mtime": 1782240311.0248904,
+    "ast_hash": "2e04f1742de45b4062979783fc346c5b",
+    "semantic_hash": "2e04f1742de45b4062979783fc346c5b"
+  },
+  "tests/test_broker.py": {
+    "mtime": 1782240367.0053105,
+    "ast_hash": "140140f0bf5b9b682030a3b5c1358bce",
+    "semantic_hash": "140140f0bf5b9b682030a3b5c1358bce"
+  },
+  "tests/test_cli.py": {
+    "mtime": 1782240443.888006,
+    "ast_hash": "e577c57ecf597feaea5eeb3b89cf99d9",
+    "semantic_hash": "e577c57ecf597feaea5eeb3b89cf99d9"
+  },
+  "docs/superpowers/specs/2026-06-24-live-trading-demo-design.md": {
+    "mtime": 1782240181.600312,
+    "ast_hash": "9c30cc199f3c426cbc93617a619458d1",
+    "semantic_hash": "9c30cc199f3c426cbc93617a619458d1"
   }
 }
