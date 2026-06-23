@@ -55,6 +55,10 @@ uv run python -m trading_bot.market_data.download_cli \
 Place trades from the terminal:
 
 ```bash
+# Sample working command (demo account, ~$100 BTC, TP +10%, SL -2%)
+uv run trade buy BTCUSDT 0.00161 --sl 61036.37 --tp 68510.21
+
+# General form
 uv run trade buy  BTCUSDT 0.001 --sl 95000 --tp 105000
 uv run trade sell BTCUSDT 0.001 --sl 105000 --tp 95000
 uv run trade orders            # list open orders
