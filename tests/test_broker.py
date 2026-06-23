@@ -29,7 +29,7 @@ def test_place_trade_buy_success():
         "fills": [{"qty": "0.001", "price": "100000.0"}],
     }
     client.get_order.return_value = {"status": "FILLED"}
-    client.create_oco_order.return_value = {"orderListId": 999}
+    client._post.return_value = {"orderListId": 999}
 
     broker = _make_broker(client)
     result = broker.place_trade("BTCUSDT", "BUY", 0.001, 95000.0, 105000.0)
