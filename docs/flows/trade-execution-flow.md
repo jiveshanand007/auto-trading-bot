@@ -1,41 +1,70 @@
-# Trade Execution Flow
+# Trade Execution Flow Diagrams
 
-## 1. End-to-End: From Command to Filled Trade
+---
+
+## 1. End-to-End Trade Flow
 
 ```mermaid
 flowchart TD
-    A([User / Claude AI]) -->|"trade buy BTCUSDT 0.001 --sl 95000 --tp 105000"| B
-    A -->|"place_trade via MCP tool"| B
+    classDef interface fill:#4a90d9,stroke:#2c5f8a,color:#fff
+    classDef controller fill:#7b68ee,stroke:#4b3ba0,color:#fff
+    classDef broker fill:#2ecc71,stroke:#1a7a43,color:#fff
+    classDef binance fill:#f39c12,stroke:#9a6208,color:#fff
+    classDef decision fill:#ecf0f1,stroke:#7f8c8d,color:#2c3e50
+    classDef error fill:#e74c3c,stroke:#922b21,color:#fff
+    classDef success fill:#27ae60,stroke:#1a6b3b,color:#fff
 
-    B[Pre-Trade Panel\nmarket price · balance · notional · SL% · TP% · R:R]
-    B --> C{Confirm?}
-    C -- cancelled --> Z([Exit])
-    C -- confirmed --> D
+    USER(["User / Claude AI"]):::interface
 
-    D[Fetch current price\nGET /api/v3/ticker/price]
-    D --> E{Validate SL / TP}
+    subgraph INTERFACE ["Interface Layer"]
+        CLI["trade CLI\ntyper + rich"]:::interface
+        MCP["MCP Server\nFastMCP stdio"]:::interface
+    end
 
-    E -- "BUY: SL < price < TP ✓" --> F
-    E -- "SELL: TP < price < SL ✓" --> F
-    E -- invalid --> ERR1([ValueError — nothing sent to Binance])
+    subgraph CTRL ["Controller Layer (future)"]
+        direction TB
+        CTRL_NODE["TradeController\n─────────────────\n• Risk checks\n• Position sizing\n• DB logging"]:::controller
+    end
 
-    F["POST /api/v3/orderList/otoco\n— single atomic call —"]
+    subgraph BROKER_LAYER ["Broker Layer"]
+        BB["BinanceBroker\n─────────────────\n1. Validate SL/TP vs price\n2. POST orderList/otoco"]:::broker
+    end
 
-    F --> G["Working order\nMARKET BUY fills immediately"]
-    F --> H["Pending OCO activates on fill"]
+    subgraph BINANCE ["Binance API - atomic OTOCO"]
+        direction LR
+        MARKET["Working Order\nMARKET BUY/SELL\nfills immediately"]:::binance
+        OCO["Pending OCO\nauto-activates on fill"]:::binance
+        TP_LEG["LIMIT_MAKER\n@ take_profit"]:::binance
+        SL_LEG["STOP_LOSS_LIMIT\n@ stop_loss"]:::binance
+        OCO --> TP_LEG
+        OCO --> SL_LEG
+    end
 
-    H --> TP["LIMIT_MAKER @ take_profit\n→ locks in profit if price rises"]
-    H --> SL["STOP_LOSS_LIMIT @ stop_loss\n→ caps loss if price drops"]
+    PANEL["Pre-Trade Panel\nprice - balance - notional\nSL% - TP% - R:R ratio"]:::interface
+    CONFIRM{"Confirm?"}:::decision
+    VALIDATE{"SL/TP\nvalid?"}:::decision
+    FILL["Extract fill price\nfrom orderReports"]:::broker
+    RESULT(["TradeResult\nentry_price - order_ids\nSL - TP"]):::success
 
-    G --> I[Extract fill price\nfrom orderReports fills]
-    I --> J{fills in response?}
-    J -- yes --> K[Compute weighted avg fill price]
-    J -- no --> L[Poll GET /api/v3/order\nuntil FILLED — max 5s]
-    L --> K
+    ERR_CANCEL(["Cancelled"]):::error
+    ERR_VALIDATE(["ValueError\nnothing sent"]):::error
+    ERR_API(["BrokerError\natomic reject\nno position opened"]):::error
 
-    K --> M([TradeResult\nsymbol · side · qty · entry_price\nentry_order_id · oco_list_id · SL · TP])
-
-    F -- "API error" --> ERR2(["BrokerError\nentry NOT opened\nno orphaned position"])
+    USER -->|"trade buy BTCUSDT 0.001 --sl 95000 --tp 105000"| CLI
+    USER -->|"place_trade via MCP"| MCP
+    CLI --> PANEL
+    MCP --> CTRL_NODE
+    PANEL --> CONFIRM
+    CONFIRM -->|"no"| ERR_CANCEL
+    CONFIRM -->|"yes"| CTRL_NODE
+    CTRL_NODE --> BB
+    BB --> VALIDATE
+    VALIDATE -->|"invalid"| ERR_VALIDATE
+    VALIDATE -->|"valid"| MARKET
+    MARKET --> OCO
+    MARKET --> FILL
+    BB -->|"API error"| ERR_API
+    FILL --> RESULT
 ```
 
 ---
@@ -43,52 +72,69 @@ flowchart TD
 ## 2. System Architecture
 
 ```mermaid
-flowchart LR
-    subgraph Interfaces
-        CLI["trade CLI\ntyper + rich"]
-        MCP["MCP Server\nFastMCP stdio"]
-    end
+architecture-beta
+    group interface_layer(internet)[Interface Layer]
+        service cli(server)[trade CLI - typer + rich] in interface_layer
+        service mcp(server)[MCP Server - FastMCP stdio] in interface_layer
 
-    subgraph Broker
-        BB["BinanceBroker\nbinance_broker.py"]
-    end
+    group controller_layer(cloud)[Controller Layer - future]
+        service controller(server)[TradeController - risk + sizing + DB log] in controller_layer
 
-    subgraph Config
-        ENV[".env\nBOT_BINANCE_API_KEY\nBOT_BINANCE_API_SECRET\nBOT_BINANCE_TESTNET\nBOT_BINANCE_TESTNET_URL"]
-    end
+    group broker_layer(server)[Broker Layer]
+        service broker(server)[BinanceBroker] in broker_layer
+        service config(disk)[.env Config - BOT_ vars] in broker_layer
 
-    subgraph Binance
-        DEMO["demo-api.binance.com\n(paper trading)"]
-        TESTNET["testnet.binance.vision\n(testnet)"]
-        LIVE["api.binance.com\n(live)"]
-    end
+    group binance_grp(internet)[Binance Endpoints]
+        service demo(server)[demo-api.binance.com - paper trading] in binance_grp
+        service testnet(server)[testnet.binance.vision - testnet] in binance_grp
+        service live(server)[api.binance.com - live] in binance_grp
 
-    CLI --> BB
-    MCP --> BB
-    ENV --> BB
-    BB -->|"URL from config"| DEMO
-    BB -.->|"if testnet=true"| TESTNET
-    BB -.->|"if testnet=false"| LIVE
+    cli:R --> L:controller
+    mcp:R --> L:controller
+    controller:R --> L:broker
+    config:T --> B:broker
+    broker:R --> L:demo
+    broker:R --> L:testnet
+    broker:R --> L:live
+
+    align column cli mcp
+    align column demo testnet live
 ```
 
 ---
 
-## 3. OCO Logic — Which Leg Does What
+## 3. OCO Leg Logic — Which Leg Fires When
 
 ```mermaid
-flowchart TD
-    subgraph "After BUY entry fills"
-        P1["Price rises → LIMIT_MAKER hits\n✅ Take Profit triggered\nOCO cancels Stop Loss"]
-        P2["Price drops → STOP_LOSS_LIMIT hits\n🛑 Stop Loss triggered\nOCO cancels Take Profit"]
+flowchart LR
+    classDef entry fill:#3498db,stroke:#1a6091,color:#fff
+    classDef tp fill:#27ae60,stroke:#1a6b3b,color:#fff
+    classDef sl fill:#e74c3c,stroke:#922b21,color:#fff
+    classDef cancel fill:#95a5a6,stroke:#616a6b,color:#fff
+
+    BUY_ENTRY(["BUY entry filled\nlong position open"]):::entry
+    SELL_ENTRY(["SELL entry filled\nshort position"]):::entry
+
+    subgraph BUY_OCO ["OCO protecting a LONG"]
+        direction TB
+        BUY_TP["Price rises\nhits LIMIT_MAKER @ take_profit\nProfit locked in"]:::tp
+        BUY_SL["Price drops\nhits STOP_LOSS_LIMIT @ stop_loss\nLoss capped"]:::sl
+        BUY_TP -->|"cancels"| BUY_SL_CANCEL["SL cancelled"]:::cancel
+        BUY_SL -->|"cancels"| BUY_TP_CANCEL["TP cancelled"]:::cancel
     end
 
-    subgraph "After SELL entry fills"
-        P3["Price drops → LIMIT_MAKER hits\n✅ Take Profit triggered\nOCO cancels Stop Loss"]
-        P4["Price rises → STOP_LOSS_LIMIT hits\n🛑 Stop Loss triggered\nOCO cancels Take Profit"]
+    subgraph SELL_OCO ["OCO protecting a SHORT"]
+        direction TB
+        SELL_TP["Price drops\nhits LIMIT_MAKER @ take_profit\nProfit locked in"]:::tp
+        SELL_SL["Price rises\nhits STOP_LOSS_LIMIT @ stop_loss\nLoss capped"]:::sl
+        SELL_TP -->|"cancels"| SELL_SL_CANCEL["SL cancelled"]:::cancel
+        SELL_SL -->|"cancels"| SELL_TP_CANCEL["TP cancelled"]:::cancel
     end
 
-    BUY([BUY entry]) --> P1 & P2
-    SELL([SELL entry]) --> P3 & P4
+    BUY_ENTRY --> BUY_TP
+    BUY_ENTRY --> BUY_SL
+    SELL_ENTRY --> SELL_TP
+    SELL_ENTRY --> SELL_SL
 ```
 
 ---
@@ -97,18 +143,45 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A[place_trade called] --> B[fetch market price]
+    classDef normal fill:#3498db,stroke:#1a6091,color:#fff
+    classDef decision fill:#ecf0f1,stroke:#7f8c8d,color:#2c3e50
+    classDef error fill:#e74c3c,stroke:#922b21,color:#fff
+    classDef warn fill:#f39c12,stroke:#9a6208,color:#fff
+    classDef success fill:#27ae60,stroke:#1a6b3b,color:#fff
 
-    B -- "API error" --> E1(["BrokerError\nnothing placed"])
+    START(["place_trade called"]):::normal
 
-    B -- ok --> C[validate SL/TP]
-    C -- "SL/TP wrong side of price" --> E2(["ValueError\nnothing placed"])
+    FETCH["Fetch market price\nGET /api/v3/ticker/price"]:::normal
+    FETCH_ERR(["BrokerError\nnothing placed\nno position opened"]):::error
 
-    C -- ok --> D["POST orderList/otoco"]
-    D -- "API error e.g. -1102 bad params\nor insufficient balance" --> E3(["BrokerError\natomic reject — no position opened ✓"])
+    VALIDATE{"Validate SL / TP"}:::decision
+    VAL_ERR(["ValueError\nnothing placed\nno position opened"]):::error
 
-    D -- ok --> F[entry fills + OCO active]
-    F --> G[poll for fill price]
-    G -- "poll timeout" --> H["entry_price = 0.0\nlog warning\nTradeResult still returned\nOCO is still live ✓"]
-    G -- ok --> I([TradeResult with fill price])
+    OTOCO["POST /api/v3/orderList/otoco\natomic - entry + OCO together"]:::normal
+    OTOCO_ERR(["BrokerError - atomic reject\nno position opened\ne.g. -1102 bad params\nor insufficient balance"]):::error
+
+    FILLED["Entry fills\nOCO activated"]:::success
+
+    POLL{"Fill price\nin response?"}:::decision
+    POLL_YES["Compute weighted avg\nfrom fills array"]:::normal
+    POLL_RETRY["Poll GET /api/v3/order\nmax 5s / 10 retries"]:::normal
+    POLL_TIMEOUT(["entry_price = 0.0\nlog warning\nOCO still live\nTradeResult returned"]):::warn
+    POLL_OK["Fill price resolved"]:::normal
+
+    RESULT(["TradeResult returned\nposition protected by OCO"]):::success
+
+    START --> FETCH
+    FETCH -->|"API error"| FETCH_ERR
+    FETCH -->|"ok"| VALIDATE
+    VALIDATE -->|"SL/TP wrong side of price"| VAL_ERR
+    VALIDATE -->|"valid"| OTOCO
+    OTOCO -->|"API error"| OTOCO_ERR
+    OTOCO -->|"ok"| FILLED
+    FILLED --> POLL
+    POLL -->|"yes"| POLL_YES
+    POLL -->|"no"| POLL_RETRY
+    POLL_RETRY -->|"timeout"| POLL_TIMEOUT
+    POLL_RETRY -->|"filled"| POLL_OK
+    POLL_YES --> RESULT
+    POLL_OK --> RESULT
 ```
