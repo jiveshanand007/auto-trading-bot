@@ -105,19 +105,34 @@ class BinanceBroker:
         except (BinanceAPIException, BinanceOrderException) as exc:
             raise BrokerError(str(exc), original=exc) from exc
 
-        oco_side = "SELL" if side_upper == "BUY" else "BUY"
-        stop_limit_price = str(round(stop_loss * 0.999, 2))
-
+        # New Binance OCO API (orderList/oco) requires aboveType/belowType.
+        # BUY entry → SELL OCO: TP is a LIMIT_MAKER above price, SL is STOP_LOSS_LIMIT below.
+        # SELL entry → BUY OCO: SL is STOP_LOSS_LIMIT above price, TP is LIMIT_MAKER below.
         try:
-            oco_resp = self._client.create_oco_order(
-                symbol=symbol,
-                side=oco_side,
-                quantity=quantity,
-                price=str(take_profit),
-                stopPrice=str(stop_loss),
-                stopLimitPrice=stop_limit_price,
-                stopLimitTimeInForce="GTC",
-            )
+            if side_upper == "BUY":
+                oco_resp = self._client._post("orderList/oco", True, data={
+                    "symbol": symbol,
+                    "side": "SELL",
+                    "quantity": str(quantity),
+                    "aboveType": "LIMIT_MAKER",
+                    "abovePrice": str(take_profit),
+                    "belowType": "STOP_LOSS_LIMIT",
+                    "belowStopPrice": str(stop_loss),
+                    "belowPrice": str(round(stop_loss * 0.999, 2)),
+                    "belowTimeInForce": "GTC",
+                })
+            else:
+                oco_resp = self._client._post("orderList/oco", True, data={
+                    "symbol": symbol,
+                    "side": "BUY",
+                    "quantity": str(quantity),
+                    "aboveType": "STOP_LOSS_LIMIT",
+                    "aboveStopPrice": str(stop_loss),
+                    "abovePrice": str(round(stop_loss * 1.001, 2)),
+                    "aboveTimeInForce": "GTC",
+                    "belowType": "LIMIT_MAKER",
+                    "belowPrice": str(take_profit),
+                })
         except (BinanceAPIException, BinanceOrderException) as exc:
             raise BrokerError(str(exc), original=exc) from exc
 
