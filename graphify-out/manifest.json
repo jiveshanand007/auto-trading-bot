@@ -1,0 +1,127 @@
+{
+  "migrations/env.py": {
+    "mtime": 1781993518.8657806,
+    "ast_hash": "6af822c5d8fb2e23e46e4ebcd8f88b78",
+    "semantic_hash": "6af822c5d8fb2e23e46e4ebcd8f88b78"
+  },
+  "migrations/versions/b9cd2dcd8466_initial_schema.py": {
+    "mtime": 1781993528.141771,
+    "ast_hash": "92039fc1eadeb10f2ceceaffa0e1f08e",
+    "semantic_hash": "92039fc1eadeb10f2ceceaffa0e1f08e"
+  },
+  "pyproject.toml": {
+    "mtime": 1781993097.1138222,
+    "ast_hash": "6846312f4c4b8cfffa8ce5571ee859cd",
+    "semantic_hash": "6846312f4c4b8cfffa8ce5571ee859cd"
+  },
+  "src/trading_bot/__init__.py": {
+    "mtime": 1781993118.82981,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "src/trading_bot/config.py": {
+    "mtime": 1781993126.8098173,
+    "ast_hash": "a06b2ae93ed3b796856b9e02bcdd5203",
+    "semantic_hash": "a06b2ae93ed3b796856b9e02bcdd5203"
+  },
+  "src/trading_bot/db/__init__.py": {
+    "mtime": 1781993118.82981,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "src/trading_bot/db/base.py": {
+    "mtime": 1781993460.3777833,
+    "ast_hash": "0c77c4ea0fe46d4444a719a7329ad175",
+    "semantic_hash": "0c77c4ea0fe46d4444a719a7329ad175"
+  },
+  "src/trading_bot/db/models.py": {
+    "mtime": 1781993570.7617772,
+    "ast_hash": "fbeb78f1a37e833765ac9fd29a737816",
+    "semantic_hash": "fbeb78f1a37e833765ac9fd29a737816"
+  },
+  "src/trading_bot/logging_config.py": {
+    "mtime": 1781993134.269826,
+    "ast_hash": "e25187a0aac18c78fdd81fd72c669c87",
+    "semantic_hash": "e25187a0aac18c78fdd81fd72c669c87"
+  },
+  "src/trading_bot/market_data/__init__.py": {
+    "mtime": 1781993118.82981,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "src/trading_bot/market_data/binance_client.py": {
+    "mtime": 1781993375.3777957,
+    "ast_hash": "8734b18097644152f7ef50d62c20b9d9",
+    "semantic_hash": "8734b18097644152f7ef50d62c20b9d9"
+  },
+  "src/trading_bot/market_data/download_cli.py": {
+    "mtime": 1781993400.3378148,
+    "ast_hash": "2e712cc1983290b0cc522336e3ae90b2",
+    "semantic_hash": "2e712cc1983290b0cc522336e3ae90b2"
+  },
+  "src/trading_bot/market_data/downloader.py": {
+    "mtime": 1781993309.6618223,
+    "ast_hash": "8fba68f2d80029acf329b973e33d7fa3",
+    "semantic_hash": "8fba68f2d80029acf329b973e33d7fa3"
+  },
+  "src/trading_bot/market_data/storage.py": {
+    "mtime": 1781993253.6298175,
+    "ast_hash": "50ffcd26f05f9fb5e4bd98aa90add604",
+    "semantic_hash": "50ffcd26f05f9fb5e4bd98aa90add604"
+  },
+  "src/trading_bot/market_data/types.py": {
+    "mtime": 1781993207.2258215,
+    "ast_hash": "c334801b8ff8e4b8b5a7a7d5d1441235",
+    "semantic_hash": "c334801b8ff8e4b8b5a7a7d5d1441235"
+  },
+  "tests/__init__.py": {
+    "mtime": 1781993118.82981,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "tests/test_downloader.py": {
+    "mtime": 1781993295.7858112,
+    "ast_hash": "3d7689eb9eb3db863d934c57b4ee2213",
+    "semantic_hash": "3d7689eb9eb3db863d934c57b4ee2213"
+  },
+  "tests/test_models.py": {
+    "mtime": 1781993570.7617772,
+    "ast_hash": "7160620c48515739f3c4d7d340c3a5a0",
+    "semantic_hash": "7160620c48515739f3c4d7d340c3a5a0"
+  },
+  "tests/test_storage.py": {
+    "mtime": 1781993433.481794,
+    "ast_hash": "f84ab8259c30c1eae24520acc13a8b23",
+    "semantic_hash": "f84ab8259c30c1eae24520acc13a8b23"
+  },
+  "tests/test_types.py": {
+    "mtime": 1781993427.2897973,
+    "ast_hash": "db89860801a3b9558c2fec1d5bfe3a80",
+    "semantic_hash": "db89860801a3b9558c2fec1d5bfe3a80"
+  },
+  "CLAUDE.md": {
+    "mtime": 1781995085.557549,
+    "ast_hash": "01851f41e2fee90afc705a19db5acd3a",
+    "semantic_hash": "01851f41e2fee90afc705a19db5acd3a"
+  },
+  "README.md": {
+    "mtime": 1781994513.901557,
+    "ast_hash": "00e8d6e8b025db78484e3892502dee1d",
+    "semantic_hash": "00e8d6e8b025db78484e3892502dee1d"
+  },
+  "docker-compose.yml": {
+    "mtime": 1781993548.27377,
+    "ast_hash": "09b32a2f5f7cf922ab3caa01ecb675e8",
+    "semantic_hash": "09b32a2f5f7cf922ab3caa01ecb675e8"
+  },
+  "docs/superpowers/specs/2026-06-21-trading-bot-8-week-design.md": {
+    "mtime": 1781990006.0303311,
+    "ast_hash": "a56c4be1b5f802c9ad66f2d91e4ff71f",
+    "semantic_hash": "a56c4be1b5f802c9ad66f2d91e4ff71f"
+  },
+  "requirement.md": {
+    "mtime": 1781981103.6242,
+    "ast_hash": "63da3f3db2f2fe33ed95f0c58b634761",
+    "semantic_hash": "63da3f3db2f2fe33ed95f0c58b634761"
+  }
+}
