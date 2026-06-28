@@ -16,10 +16,12 @@ from trading_bot.cli._display import (
     print_orders_table,
     print_trade_preview,
 )
+from trading_bot.cli.futures_cli import futures_app
 from trading_bot.core.domain.order import Side
 from trading_bot.core.domain.trade import TradePlan, TradeStage
 
 app = typer.Typer(help="Spot trading — place and manage trades on Binance.")
+app.add_typer(futures_app, name="futures")
 
 
 def _die(msg: str) -> None:
