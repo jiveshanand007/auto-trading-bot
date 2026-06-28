@@ -47,6 +47,25 @@ class Settings(BaseSettings):
         description="Live REST base URL (only used when binance_testnet=False).",
     )
 
+    # --- Binance Futures (USDM) ---
+    futures_leverage: int = Field(
+        default=5, description="Default leverage for futures trades (1–125)."
+    )
+    futures_margin_type: str = Field(
+        default="ISOLATED", description="Default margin type: ISOLATED or CROSS."
+    )
+    binance_futures_testnet: bool = Field(
+        default=True, description="Use futures testnet endpoint."
+    )
+    binance_futures_testnet_url: str = Field(
+        default="https://testnet.binancefuture.com/fapi",
+        description="USDM futures testnet REST base URL.",
+    )
+    binance_futures_live_url: str = Field(
+        default="https://fapi.binance.com/fapi",
+        description="USDM futures live REST base URL.",
+    )
+
     # --- Logging ---
     log_level: str = Field(default="INFO")
     log_json: bool = Field(default=False, description="Emit JSON logs (True in prod).")
