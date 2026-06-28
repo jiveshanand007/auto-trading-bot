@@ -1,7 +1,7 @@
 # tests/exchanges/binance/spot/test_spot_broker.py
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 from binance.exceptions import BinanceAPIException
@@ -11,12 +11,9 @@ from trading_bot.core.domain.trade import ActiveTrade, TradePlan, TradeStage, Tr
 from trading_bot.exchanges.binance.common.errors import BrokerError
 from trading_bot.exchanges.binance.spot.broker import SpotBroker
 
-_PATCH = "trading_bot.exchanges.binance.spot.broker.Client"
-
 
 def _make_broker(mock_client: MagicMock) -> SpotBroker:
-    with patch(_PATCH, return_value=mock_client):
-        return SpotBroker()
+    return SpotBroker(client=mock_client)
 
 
 def _fake_client() -> MagicMock:
@@ -131,4 +128,4 @@ def test_advance_stage_cancels_and_replaces_orders():
 
     assert updated.current_stage == 1
     assert updated.status == TradeStatus.OPEN
-    client.cancel_order.assert_called()
+    assert client.cancel_order.call_count == 2

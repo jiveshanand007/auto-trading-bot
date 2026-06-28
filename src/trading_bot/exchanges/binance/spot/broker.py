@@ -1,16 +1,17 @@
 # src/trading_bot/exchanges/binance/spot/broker.py
 from __future__ import annotations
 
+import dataclasses
 import time
 
 import structlog
-from binance.client import Client
 from binance.exceptions import BinanceAPIException, BinanceOrderException
 
 from trading_bot.config import Settings, get_settings
 from trading_bot.core.domain.order import Side
 from trading_bot.core.domain.position import Position
 from trading_bot.core.domain.trade import ActiveTrade, TradePlan, TradeStatus
+from trading_bot.exchanges.binance.common.auth import make_spot_client
 from trading_bot.exchanges.binance.common.errors import BrokerError, map_binance_error
 from trading_bot.exchanges.binance.spot.order_builder import build_otoco
 from trading_bot.exchanges.binance.spot.validator import validate
@@ -22,13 +23,9 @@ _FILL_SLEEP = 0.5
 
 
 class SpotBroker:
-    def __init__(self, settings: Settings | None = None) -> None:
+    def __init__(self, settings: Settings | None = None, *, client=None) -> None:
         self._settings = settings or get_settings()
-        s = self._settings
-        self._client: Client = Client(s.binance_api_key, s.binance_api_secret)
-        self._client.API_URL = (
-            s.binance_testnet_url if s.binance_testnet else s.binance_live_url
-        )
+        self._client = client if client is not None else make_spot_client(self._settings)
 
     def get_price(self, symbol: str) -> float:
         try:
@@ -84,7 +81,6 @@ class SpotBroker:
         if not trade.has_next_stage:
             raise BrokerError("No next stage available for this trade")
 
-        trade.status = TradeStatus.ADVANCING
         current = trade.current_stage_def
         next_stage = trade.plan.stages[trade.current_stage + 1]
         side_str = "SELL" if trade.plan.side == Side.BUY else "BUY"
@@ -92,6 +88,9 @@ class SpotBroker:
         try:
             self._client.cancel_order(
                 symbol=trade.plan.symbol, orderId=trade.current_sl_order_id
+            )
+            self._client.cancel_order(
+                symbol=trade.plan.symbol, orderId=trade.current_tp_order_id
             )
         except (BinanceAPIException, BinanceOrderException) as exc:
             raise map_binance_error(exc) from exc
@@ -119,11 +118,13 @@ class SpotBroker:
         except (BinanceAPIException, BinanceOrderException) as exc:
             raise map_binance_error(exc) from exc
 
-        trade.current_sl_order_id = sl_resp["orderId"]
-        trade.current_tp_order_id = tp_resp["orderId"]
-        trade.current_stage += 1
-        trade.status = TradeStatus.OPEN
-        return trade
+        return dataclasses.replace(
+            trade,
+            current_stage=trade.current_stage + 1,
+            current_sl_order_id=sl_resp["orderId"],
+            current_tp_order_id=tp_resp["orderId"],
+            status=TradeStatus.OPEN,
+        )
 
     def update_stop_loss(self, trade: ActiveTrade, new_sl: float) -> ActiveTrade:
         side_str = "SELL" if trade.plan.side == Side.BUY else "BUY"
@@ -143,8 +144,7 @@ class SpotBroker:
         except (BinanceAPIException, BinanceOrderException) as exc:
             raise map_binance_error(exc) from exc
 
-        trade.current_sl_order_id = sl_resp["orderId"]
-        return trade
+        return dataclasses.replace(trade, current_sl_order_id=sl_resp["orderId"])
 
     def close_position(self, symbol: str) -> dict:
         raise NotImplementedError(
