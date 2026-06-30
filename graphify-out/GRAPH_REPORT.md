@@ -1,43 +1,51 @@
-# Graph Report - .  (2026-06-24)
+# Graph Report - .  (2026-06-30)
 
 ## Corpus Check
-- 10 files · ~12,701 words
+- 82 files · ~42,240 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 256 nodes · 380 edges · 22 communities (19 shown, 3 thin omitted)
-- Extraction: 86% EXTRACTED · 14% INFERRED · 0% AMBIGUOUS · INFERRED: 55 edges (avg confidence: 0.72)
+- 561 nodes · 1023 edges · 50 communities (44 shown, 6 thin omitted)
+- Extraction: 80% EXTRACTED · 20% INFERRED · 0% AMBIGUOUS · INFERRED: 205 edges (avg confidence: 0.74)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
-- [[_COMMUNITY_Market Data & Parquet Storage|Market Data & Parquet Storage]]
-- [[_COMMUNITY_Project Docs & Architecture Concepts|Project Docs & Architecture Concepts]]
-- [[_COMMUNITY_ORM Models & DB Session|ORM Models & DB Session]]
-- [[_COMMUNITY_DB Engine, Config & Binance HTTP Client|DB Engine, Config & Binance HTTP Client]]
-- [[_COMMUNITY_Requirements & Dropped YAGNI Scope|Requirements & Dropped YAGNI Scope]]
-- [[_COMMUNITY_BinanceBroker & CLI Test Suite|BinanceBroker & CLI Test Suite]]
-- [[_COMMUNITY_Klines Downloader & Tests|Klines Downloader & Tests]]
-- [[_COMMUNITY_Trade CLI Commands|Trade CLI Commands]]
-- [[_COMMUNITY_Bar Type Tests|Bar Type Tests]]
-- [[_COMMUNITY_BinanceBroker Unit Tests|BinanceBroker Unit Tests]]
-- [[_COMMUNITY_High-Level Architecture Concepts|High-Level Architecture Concepts]]
-- [[_COMMUNITY_MCP Server Tools|MCP Server Tools]]
-- [[_COMMUNITY_DB Schema Tests|DB Schema Tests]]
-- [[_COMMUNITY_Community 13|Community 13]]
-- [[_COMMUNITY_Community 15|Community 15]]
-- [[_COMMUNITY_Community 19|Community 19]]
+- [[_COMMUNITY_External Libraries & Base Types|External Libraries & Base Types]]
+- [[_COMMUNITY_Futures CLI & Order Domain|Futures CLI & Order Domain]]
+- [[_COMMUNITY_Config & Client Factory|Config & Client Factory]]
+- [[_COMMUNITY_Binance Error Handling|Binance Error Handling]]
+- [[_COMMUNITY_CLI Display & Broker Factory|CLI Display & Broker Factory]]
+- [[_COMMUNITY_SDD Tasks & Core Protocols|SDD Tasks & Core Protocols]]
+- [[_COMMUNITY_Project Docs & Architecture|Project Docs & Architecture]]
+- [[_COMMUNITY_Trade Domain Model|Trade Domain Model]]
+- [[_COMMUNITY_Infrastructure & Setup|Infrastructure & Setup]]
+- [[_COMMUNITY_Futures CLI Tests|Futures CLI Tests]]
+- [[_COMMUNITY_Futures Broker Tests|Futures Broker Tests]]
+- [[_COMMUNITY_Legacy Broker Tests|Legacy Broker Tests]]
+- [[_COMMUNITY_Database Models|Database Models]]
+- [[_COMMUNITY_Spot Broker Tests|Spot Broker Tests]]
+- [[_COMMUNITY_Market Data Types Tests|Market Data Types Tests]]
+- [[_COMMUNITY_Futures Validator Tests|Futures Validator Tests]]
+- [[_COMMUNITY_DB Model Tests|DB Model Tests]]
+- [[_COMMUNITY_Project Roadmap|Project Roadmap]]
+- [[_COMMUNITY_MCP Server|MCP Server]]
+- [[_COMMUNITY_Infrastructure Requirements|Infrastructure Requirements]]
+- [[_COMMUNITY_Kubernetes DevOps Requirement|Kubernetes DevOps Requirement]]
+- [[_COMMUNITY_TradeResult Legacy Type|TradeResult Legacy Type]]
+- [[_COMMUNITY_Futures Leverage Builder|Futures Leverage Builder]]
+- [[_COMMUNITY_Settings Singleton|Settings Singleton]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `ParquetBarStore` - 24 edges
-2. `Timeframe` - 17 edges
-3. `Bar` - 14 edges
-4. `KlineDownloader` - 12 edges
-5. `Base` - 10 edges
-6. `FakeBinanceClient` - 10 edges
-7. `BinanceBroker` - 9 edges
-8. `KlineFetcher` - 8 edges
-9. `_bar()` - 8 edges
-10. `BrokerError` - 8 edges
+1. `TradePlan` - 32 edges
+2. `ActiveTrade` - 30 edges
+3. `ParquetBarStore` - 24 edges
+4. `map_binance_error()` - 24 edges
+5. `FuturesBroker` - 24 edges
+6. `SpotBroker` - 21 edges
+7. `Settings` - 20 edges
+8. `TradeStage` - 20 edges
+9. `Side` - 18 edges
+10. `Timeframe` - 17 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Strategy Engine (Brain)` --semantically_similar_to--> `Strategy Component (on_bar->Signal)`  [INFERRED] [semantically similar]
@@ -55,83 +63,106 @@
 - None detected.
 
 ## Hyperedges (group relationships)
-- **Live Trading Demo: CLI + MCP Server + BinanceBroker form the end-to-end trade execution path** — specs_2026_06_24_live_trading_demo_design_trade_cli, specs_2026_06_24_live_trading_demo_design_mcp_server, specs_2026_06_24_live_trading_demo_design_binance_broker [EXTRACTED 1.00]
-- **OCO trade flow: BinanceBroker places market order then OCO (SL+TP), returning TradeResult** — specs_2026_06_24_live_trading_demo_design_binance_broker, specs_2026_06_24_live_trading_demo_design_oco_order, specs_2026_06_24_live_trading_demo_design_trade_result [EXTRACTED 1.00]
-- **Week 1 foundations: Bar type + Parquet Store + DB Schema form the data layer** — claude_bar_type, claude_parquet_store, claude_db_schema_8_tables [INFERRED 0.95]
+- **Spot Trade Placement Flow** — sdd_task5brief_spotbroker, sdd_task4brief_spotvalidate, sdd_task4brief_buildotoco [EXTRACTED 1.00]
+- **Core Trade Lifecycle Model** — sdd_task1brief_tradeplan, sdd_task1brief_tradestage, sdd_task1brief_activetrade, sdd_task1brief_tradestatus [EXTRACTED 1.00]
+- **Futures Order Construction** — sdd_task6brief_futuresvalidate, sdd_task6brief_buildentry, sdd_task6brief_buildstopmarket, sdd_task6brief_buildtakeprofitmarket [EXTRACTED 1.00]
+- **Hexagonal Broker Layer: IBroker Port with SpotBroker and FuturesBroker Adapters** — docs_hld_ibroker, docs_hld_spotbroker, docs_hld_futuresbroker, docs_hld_hexagonal_arch [EXTRACTED 1.00]
+- **Core Trade Domain Model: TradePlan contains TradeStages tracked by ActiveTrade** — docs_hld_tradeplan, docs_hld_tradestage, docs_hld_activetrade [EXTRACTED 1.00]
+- **CLI Layer: display, broker-factory, spot-CLI, and futures-CLI participate in terminal interface** — sdd_task_8_brief_display_module, sdd_task_8_brief_broker_factory, sdd_task_8_brief_trade_cli, sdd_task_9_brief_futures_app [INFERRED 0.95]
 
-## Communities (22 total, 3 thin omitted)
+## Communities (50 total, 6 thin omitted)
 
-### Community 0 - "Market Data & Parquet Storage"
+### Community 0 - "External Libraries & Base Types"
+Cohesion: 0.05
+Nodes (51): BaseModel, BoundLogger, DataFrame, datetime, _now(), main(), _parse_date(), CLI to download historical klines into the parquet store.  Example::      uv run (+43 more)
+
+### Community 1 - "Futures CLI & Order Domain"
+Cohesion: 0.06
+Nodes (51): advance command calls broker.advance_stage and updates _active_trades., test_futures_advance_success(), MarginType, OrderType, Side, TradeResult, Position, _plan() (+43 more)
+
+### Community 2 - "Config & Client Factory"
+Cohesion: 0.05
+Nodes (39): BaseSettings, Client, BinanceBroker, BrokerError, Binance broker implementation wrapping python-binance., TradeResult, make_futures_client(), make_spot_client() (+31 more)
+
+### Community 3 - "Binance Error Handling"
+Cohesion: 0.06
+Nodes (26): BinanceAPIException, BinanceOrderException, BrokerError, map_binance_error(), Binance-specific error handling and mapping., Initialize BrokerError.          Args:             message: Human-readable error, Map a Binance exception to a BrokerError.      Args:         exc: Binance except, Unified broker error wrapper for Binance exceptions. (+18 more)
+
+### Community 4 - "CLI Display & Broker Factory"
+Cohesion: 0.09
+Nodes (43): make_futures_broker(), make_spot_broker(), _fmt(), print_active_trade(), print_balance_table(), print_orders_table(), print_positions_table(), print_trade_preview() (+35 more)
+
+### Community 5 - "SDD Tasks & Core Protocols"
+Cohesion: 0.09
+Nodes (35): SDD Progress Ledger (futures-refactor), ActiveTrade Dataclass, IBroker Protocol, ITradeStore Protocol, MarginType Enum (ISOLATED/CROSS), Position Dataclass, Side Enum (BUY/SELL), Task 1 Brief: Core Domain Types (+27 more)
+
+### Community 6 - "Project Docs & Architecture"
+Cohesion: 0.14
+Nodes (34): Backtest Live Parity North Star Principle, CLAUDE.md Project Guide, ActiveTrade Domain Type, High-Level Design Document, Database Schema (9 tables with account_id SaaS seam), FuturesBroker, Ports and Adapters Architecture Pattern, IBroker Protocol (9 methods) (+26 more)
+
+### Community 7 - "Trade Domain Model"
 Cohesion: 0.08
-Nodes (28): BaseModel, DataFrame, Enum, KlineFetcher, Minimal interface the downloader needs from a Binance client., _as_utc(), ParquetBarStore, Parquet-backed OHLCV storage, partitioned by symbol and timeframe.  Layout:: (+20 more)
+Nodes (10): ActiveTrade, IBroker, ITradeStore, Protocol, PositionManager, Drives trade lifecycle from price events.      Wired to the WebSocket price feed, _active_trade(), Unit tests for the trade CLI (cli/trade_cli.py) — make_spot_broker is mocked. (+2 more)
 
-### Community 1 - "Project Docs & Architecture Concepts"
-Cohesion: 0.08
-Nodes (29): 8-Week Trading Bot Design Spec, Backtest/Live Parity North Star, MCP Server (trading_bot.mcp_server), PostgreSQL 14 (local, not Docker), Auto Trading Bot Project, pydantic-settings Config, python-binance Library, SQLAlchemy 2.0 + Alembic (+21 more)
-
-### Community 2 - "ORM Models & DB Session"
-Cohesion: 0.11
-Nodes (21): BoundLogger, datetime, Base, Declarative base for all ORM models., Account, EquitySnapshot, Fill, _now() (+13 more)
-
-### Community 3 - "DB Engine, Config & Binance HTTP Client"
-Cohesion: 0.11
-Nodes (18): BaseSettings, make_engine(), make_session_factory(), SQLAlchemy engine, session factory, and declarative base.  Swapping SQLite (dev/, BinanceKlineClient, Thin wrapper over python-binance for historical klines.  Klines are public data,, Fetches historical klines via the Binance REST API., main() (+10 more)
-
-### Community 4 - "Requirements & Dropped YAGNI Scope"
+### Community 8 - "Infrastructure & Setup"
 Cohesion: 0.10
 Nodes (23): pgdata volume, postgres service (postgres:16), Quickstart / Local Run Flow, Binance API (REST + WebSocket), Market Data Feed, Multi-Exchange Support (Coinbase, Kraken), Order Execution Module, React SPA Dashboard + Node Backend (+15 more)
 
-### Community 5 - "BinanceBroker & CLI Test Suite"
-Cohesion: 0.13
-Nodes (11): BinanceBroker, BrokerError, Binance broker implementation wrapping python-binance., TradeResult, Exception, Settings, Unit tests for the trade CLI (trade_cli.py) — BinanceBroker is mocked., test_buy_broker_error_exits_nonzero() (+3 more)
+### Community 9 - "Futures CLI Tests"
+Cohesion: 0.15
+Nodes (16): _active_trade(), advance command exits with error when no active trade exists for symbol., advance command exits with error when trade is already at the final stage., move-sl command calls broker.update_stop_loss and updates _active_trades., move-sl command exits with error when no active trade exists for symbol., buy command stores result in _active_trades under the uppercased symbol., close command removes the symbol from _active_trades after success., test_futures_advance_final_stage() (+8 more)
 
-### Community 6 - "Klines Downloader & Tests"
-Cohesion: 0.16
-Nodes (14): KlineDownloader, Map a raw Binance kline row to a canonical :class:`Bar`., Fetch a date range of klines and persist them to the parquet store., Download [start, end] for symbol/timeframe. Returns bars written., raw_kline_to_bar(), FakeBinanceClient, Tests for the Binance klines downloader (pagination + mapping), mocked., A raw Binance kline row for a 1h candle starting at open_ms. (+6 more)
+### Community 10 - "Futures Broker Tests"
+Cohesion: 0.43
+Nodes (13): _buy_plan(), _entry_response(), _fake_client(), _make_broker(), _order_response(), test_advance_stage_cancels_and_replaces(), test_advance_stage_no_next_raises(), test_get_balance_returns_futures_account() (+5 more)
 
-### Community 7 - "Trade CLI Commands"
-Cohesion: 0.33
-Nodes (11): balance(), _broker(), buy(), cancel(), _die(), orders(), Show non-zero asset balances., Cancel an open order by symbol and order ID. (+3 more)
+### Community 11 - "Legacy Broker Tests"
+Cohesion: 0.34
+Nodes (13): _fake_client(), _make_broker(), _otoco_response(), Unit tests for BinanceBroker — all Binance client calls are mocked., Verify weighted-average fill price is computed correctly., test_cancel_order(), test_get_balance_filters_zero(), test_get_open_orders_no_symbol() (+5 more)
 
-### Community 8 - "Bar Type Tests"
+### Community 12 - "Database Models"
+Cohesion: 0.27
+Nodes (11): Base, Account, EquitySnapshot, Fill, Order, Position, ORM models for the trading bot.  SaaS seam: **every** table carries ``account_id, One execution of a strategy in a given mode (backtest/testnet/live). (+3 more)
+
+### Community 13 - "Spot Broker Tests"
+Cohesion: 0.42
+Nodes (11): _buy_plan(), _fake_client(), _make_broker(), _otoco_response(), test_advance_stage_cancels_and_replaces_orders(), test_cancel_order_delegates_to_client(), test_get_balance_filters_zero_balances(), test_get_positions_returns_empty_list() (+3 more)
+
+### Community 14 - "Market Data Types Tests"
 Cohesion: 0.29
 Nodes (8): _bar(), Tests for the canonical Bar type — the parity foundation.  The same Bar flows th, test_bar_constructs_and_exposes_fields(), test_bar_is_immutable(), test_close_time_must_be_after_open_time(), test_high_must_be_max_and_low_must_be_min(), test_negative_volume_rejected(), test_open_time_must_be_timezone_aware()
 
-### Community 9 - "BinanceBroker Unit Tests"
-Cohesion: 0.47
-Nodes (9): _fake_client(), _make_broker(), Unit tests for BinanceBroker — all Binance client calls are mocked., test_cancel_order(), test_get_balance_filters_zero(), test_get_open_orders_no_symbol(), test_place_trade_api_error_raises_broker_error(), test_place_trade_buy_success() (+1 more)
+### Community 15 - "Futures Validator Tests"
+Cohesion: 0.42
+Nodes (8): _plan(), test_buy_sl_above_price_raises(), test_leverage_above_125_raises(), test_leverage_zero_raises(), test_min_notional_too_small_raises(), test_sell_sl_below_price_raises(), test_valid_long_passes(), test_valid_short_passes()
 
-### Community 10 - "High-Level Architecture Concepts"
-Cohesion: 0.22
-Nodes (9): account_id SaaS Seam, Canonical Bar Type, DB Schema (8 tables with account_id), Parquet OHLCV Storage, Week 1 Foundations & Data (DONE), Week 1 Foundations & Data (done), Modular Event-Driven Architecture Proposal, 8-Week Design & Plan (+1 more)
-
-### Community 11 - "MCP Server Tools"
-Cohesion: 0.22
-Nodes (8): cancel_order(), get_balance(), get_open_orders(), place_trade(), Place a market order with automatic stop-loss and take-profit (OCO).      Exampl, Get open orders. Pass symbol like 'BTCUSDT' to filter, or leave empty for all., Get account balances for all non-zero assets., Cancel an open order by symbol and order ID.
-
-### Community 12 - "DB Schema Tests"
+### Community 16 - "DB Model Tests"
 Cohesion: 0.48
 Nodes (6): _created_inspector(), Schema tests: all tables create, and every table carries the account_id seam., test_all_expected_tables_created(), test_every_table_has_account_id_seam(), test_order_client_order_id_is_unique(), test_position_uniqueness_per_run_symbol()
 
+### Community 17 - "Project Roadmap"
+Cohesion: 0.50
+Nodes (4): Week 1 Foundations & Data (done), Modular Event-Driven Architecture Proposal, 8-Week Design & Plan, Testing Strategy (unit/mock/parity/testnet)
+
 ## Knowledge Gaps
-- **22 isolated node(s):** `Quickstart / Local Run Flow`, `pgdata volume`, `Orchestrator/Runtime`, `Risk Controls (kill-switch, drawdown breaker)`, `Testing Strategy (unit/mock/parity/testnet)` (+17 more)
+- **25 isolated node(s):** `Quickstart / Local Run Flow`, `Week 1 Foundations & Data (done)`, `pgdata volume`, `Orchestrator/Runtime`, `Risk Controls (kill-switch, drawdown breaker)` (+20 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **3 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **6 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `BinanceBroker` connect `BinanceBroker & CLI Test Suite` to `BinanceBroker Unit Tests`, `Trade CLI Commands`?**
-  _High betweenness centrality (0.112) - this node is a cross-community bridge._
-- **Why does `main()` connect `DB Engine, Config & Binance HTTP Client` to `Market Data & Parquet Storage`, `ORM Models & DB Session`, `Klines Downloader & Tests`?**
-  _High betweenness centrality (0.092) - this node is a cross-community bridge._
-- **Why does `ParquetBarStore` connect `Market Data & Parquet Storage` to `DB Engine, Config & Binance HTTP Client`, `Klines Downloader & Tests`?**
-  _High betweenness centrality (0.067) - this node is a cross-community bridge._
+- **Why does `TradePlan` connect `Futures CLI & Order Domain` to `Binance Error Handling`, `CLI Display & Broker Factory`, `Trade Domain Model`, `Futures CLI Tests`, `Futures Broker Tests`, `Spot Broker Tests`, `Futures Validator Tests`?**
+  _High betweenness centrality (0.124) - this node is a cross-community bridge._
+- **Why does `Settings` connect `Config & Client Factory` to `Binance Error Handling`?**
+  _High betweenness centrality (0.096) - this node is a cross-community bridge._
+- **Why does `FuturesBroker` connect `Binance Error Handling` to `Futures CLI & Order Domain`, `Config & Client Factory`, `CLI Display & Broker Factory`, `Trade Domain Model`, `Futures Broker Tests`?**
+  _High betweenness centrality (0.090) - this node is a cross-community bridge._
+- **Are the 10 inferred relationships involving `TradePlan` (e.g. with `_active_trade()` and `test_futures_advance_success()`) actually correct?**
+  _`TradePlan` has 10 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 9 inferred relationships involving `ActiveTrade` (e.g. with `MarginType` and `Side`) actually correct?**
+  _`ActiveTrade` has 9 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 14 inferred relationships involving `ParquetBarStore` (e.g. with `main()` and `KlineDownloader`) actually correct?**
   _`ParquetBarStore` has 14 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 5 inferred relationships involving `Timeframe` (e.g. with `main()` and `KlineDownloader`) actually correct?**
-  _`Timeframe` has 5 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 5 inferred relationships involving `Bar` (e.g. with `KlineDownloader` and `KlineFetcher`) actually correct?**
-  _`Bar` has 5 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 8 inferred relationships involving `KlineDownloader` (e.g. with `main()` and `ParquetBarStore`) actually correct?**
-  _`KlineDownloader` has 8 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 19 inferred relationships involving `map_binance_error()` (e.g. with `test_map_binance_error_extracts_code()` and `.advance_stage()`) actually correct?**
+  _`map_binance_error()` has 19 INFERRED edges - model-reasoned connections that need verification._

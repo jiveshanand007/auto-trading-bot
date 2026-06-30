@@ -10,9 +10,9 @@
     "semantic_hash": "92039fc1eadeb10f2ceceaffa0e1f08e"
   },
   "pyproject.toml": {
-    "mtime": 1782240321.4936903,
-    "ast_hash": "3f06a3f1f9ae4d5c376132c41e541228",
-    "semantic_hash": "3f06a3f1f9ae4d5c376132c41e541228"
+    "mtime": 1782671153.7213042,
+    "ast_hash": "98931de46ce4d96624b6c10152e52f59",
+    "semantic_hash": "98931de46ce4d96624b6c10152e52f59"
   },
   "src/trading_bot/__init__.py": {
     "mtime": 1781993118.82981,
@@ -20,9 +20,9 @@
     "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
   },
   "src/trading_bot/config.py": {
-    "mtime": 1781993126.8098173,
-    "ast_hash": "a06b2ae93ed3b796856b9e02bcdd5203",
-    "semantic_hash": "a06b2ae93ed3b796856b9e02bcdd5203"
+    "mtime": 1782812274.6418486,
+    "ast_hash": "ebb445d364024eec32b04eaa75d009b8",
+    "semantic_hash": "ebb445d364024eec32b04eaa75d009b8"
   },
   "src/trading_bot/db/__init__.py": {
     "mtime": 1781993118.82981,
@@ -35,9 +35,9 @@
     "semantic_hash": "0c77c4ea0fe46d4444a719a7329ad175"
   },
   "src/trading_bot/db/models.py": {
-    "mtime": 1781993570.7617772,
-    "ast_hash": "fbeb78f1a37e833765ac9fd29a737816",
-    "semantic_hash": "fbeb78f1a37e833765ac9fd29a737816"
+    "mtime": 1782811956.3819535,
+    "ast_hash": "4c3130e56a9f59651120910281821e26",
+    "semantic_hash": "4c3130e56a9f59651120910281821e26"
   },
   "src/trading_bot/logging_config.py": {
     "mtime": 1781993134.269826,
@@ -100,9 +100,9 @@
     "semantic_hash": "db89860801a3b9558c2fec1d5bfe3a80"
   },
   "CLAUDE.md": {
-    "mtime": 1782240349.7785478,
-    "ast_hash": "d25994b81658d514eeaec9e2a95d88cf",
-    "semantic_hash": "d25994b81658d514eeaec9e2a95d88cf"
+    "mtime": 1782244063.460987,
+    "ast_hash": "e9141630d60e845132b827acda6b0210",
+    "semantic_hash": "e9141630d60e845132b827acda6b0210"
   },
   "README.md": {
     "mtime": 1781994513.901557,
@@ -129,39 +129,394 @@
     "ast_hash": "8753562f087e79987f8e0483dbd814a3",
     "semantic_hash": "8753562f087e79987f8e0483dbd814a3"
   },
-  "src/trading_bot/broker/__init__.py": {
-    "mtime": 1782240286.7351792,
-    "ast_hash": "2901c22d5009bfe35f6ee9f44a9f52ce",
-    "semantic_hash": "2901c22d5009bfe35f6ee9f44a9f52ce"
-  },
-  "src/trading_bot/broker/binance_broker.py": {
-    "mtime": 1782240296.105385,
-    "ast_hash": "53530961dac7bdb0644a70c8b30a3f22",
-    "semantic_hash": "53530961dac7bdb0644a70c8b30a3f22"
-  },
   "src/trading_bot/mcp_server.py": {
-    "mtime": 1782240289.1296568,
-    "ast_hash": "4e771e5f0519c41d31c17c2734d689ce",
-    "semantic_hash": "4e771e5f0519c41d31c17c2734d689ce"
+    "mtime": 1782812052.2379487,
+    "ast_hash": "b0b74e10f3509d5864553211f138dacd",
+    "semantic_hash": "b0b74e10f3509d5864553211f138dacd"
   },
   "src/trading_bot/trade_cli.py": {
-    "mtime": 1782240311.0248904,
-    "ast_hash": "2e04f1742de45b4062979783fc346c5b",
-    "semantic_hash": "2e04f1742de45b4062979783fc346c5b"
+    "mtime": 1782671150.0215561,
+    "ast_hash": "0788f05437475f79da2d2f4ab1894523",
+    "semantic_hash": "0788f05437475f79da2d2f4ab1894523"
   },
   "tests/test_broker.py": {
-    "mtime": 1782240367.0053105,
-    "ast_hash": "140140f0bf5b9b682030a3b5c1358bce",
-    "semantic_hash": "140140f0bf5b9b682030a3b5c1358bce"
+    "mtime": 1782244025.7483134,
+    "ast_hash": "e7832397827202580dbba3c8257e53bb",
+    "semantic_hash": "e7832397827202580dbba3c8257e53bb"
   },
   "tests/test_cli.py": {
-    "mtime": 1782240443.888006,
-    "ast_hash": "e577c57ecf597feaea5eeb3b89cf99d9",
-    "semantic_hash": "e577c57ecf597feaea5eeb3b89cf99d9"
+    "mtime": 1782671208.9646387,
+    "ast_hash": "13ba0d04a6a036ebdfcaa819568cc855",
+    "semantic_hash": "13ba0d04a6a036ebdfcaa819568cc855"
   },
   "docs/superpowers/specs/2026-06-24-live-trading-demo-design.md": {
-    "mtime": 1782240181.600312,
-    "ast_hash": "9c30cc199f3c426cbc93617a619458d1",
-    "semantic_hash": "9c30cc199f3c426cbc93617a619458d1"
+    "mtime": 1782242783.2549877,
+    "ast_hash": "8c0f5e9094303f142d2e05526f18e75a",
+    "semantic_hash": "8c0f5e9094303f142d2e05526f18e75a"
+  },
+  "migrations/versions/af285bc12f61_extend_positions_add_trade_stages.py": {
+    "mtime": 1782811961.1019506,
+    "ast_hash": "cdfde08a901062b9b0e66005aba90392",
+    "semantic_hash": "cdfde08a901062b9b0e66005aba90392"
+  },
+  "src/trading_bot/cli/__init__.py": {
+    "mtime": 1782671092.0067918,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "src/trading_bot/cli/_broker_factory.py": {
+    "mtime": 1782671127.4703557,
+    "ast_hash": "eac2ccd60fb572f64ba9981ef45496d9",
+    "semantic_hash": "eac2ccd60fb572f64ba9981ef45496d9"
+  },
+  "src/trading_bot/cli/_display.py": {
+    "mtime": 1782671231.059355,
+    "ast_hash": "5086cdcf41c4273153a495fcabe422c7",
+    "semantic_hash": "5086cdcf41c4273153a495fcabe422c7"
+  },
+  "src/trading_bot/cli/futures_cli.py": {
+    "mtime": 1782813229.0137675,
+    "ast_hash": "525606d7f36175813b424540c7eec811",
+    "semantic_hash": "525606d7f36175813b424540c7eec811"
+  },
+  "src/trading_bot/cli/trade_cli.py": {
+    "mtime": 1782671551.9883983,
+    "ast_hash": "44499d70781bd112ff4aa433a4c43cad",
+    "semantic_hash": "44499d70781bd112ff4aa433a4c43cad"
+  },
+  "src/trading_bot/client/__init__.py": {
+    "mtime": 1782654821.2019026,
+    "ast_hash": "7d4b5ac6f8a714b8af306b6bd15be010",
+    "semantic_hash": "7d4b5ac6f8a714b8af306b6bd15be010"
+  },
+  "src/trading_bot/client/binance_client.py": {
+    "mtime": 1782244161.7451198,
+    "ast_hash": "5d23ac9e8b4354b0fd485de17db4c532",
+    "semantic_hash": "5d23ac9e8b4354b0fd485de17db4c532"
+  },
+  "src/trading_bot/core/__init__.py": {
+    "mtime": 1782653972.286947,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "src/trading_bot/core/domain/__init__.py": {
+    "mtime": 1782653974.6004431,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "src/trading_bot/core/domain/order.py": {
+    "mtime": 1782653987.70362,
+    "ast_hash": "c0b168ae1f2e3adcd1cd19eb13176361",
+    "semantic_hash": "c0b168ae1f2e3adcd1cd19eb13176361"
+  },
+  "src/trading_bot/core/domain/position.py": {
+    "mtime": 1782653995.5506966,
+    "ast_hash": "8acd5c9fea90a797491716df3a487329",
+    "semantic_hash": "8acd5c9fea90a797491716df3a487329"
+  },
+  "src/trading_bot/core/domain/trade.py": {
+    "mtime": 1782654012.0139735,
+    "ast_hash": "9f31531249c8e9d5909452b779c7db1a",
+    "semantic_hash": "9f31531249c8e9d5909452b779c7db1a"
+  },
+  "src/trading_bot/core/ports/__init__.py": {
+    "mtime": 1782653976.669742,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "src/trading_bot/core/ports/broker.py": {
+    "mtime": 1782654016.82698,
+    "ast_hash": "45f7796960b18889c09113a392c63f6f",
+    "semantic_hash": "45f7796960b18889c09113a392c63f6f"
+  },
+  "src/trading_bot/core/ports/trade_store.py": {
+    "mtime": 1782654019.7678187,
+    "ast_hash": "4b4299eb67a0a39fbfa5b01b51af75c9",
+    "semantic_hash": "4b4299eb67a0a39fbfa5b01b51af75c9"
+  },
+  "src/trading_bot/exchanges/__init__.py": {
+    "mtime": 1782654317.918623,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "src/trading_bot/exchanges/binance/__init__.py": {
+    "mtime": 1782654318.5515249,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "src/trading_bot/exchanges/binance/common/__init__.py": {
+    "mtime": 1782654318.9461133,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "src/trading_bot/exchanges/binance/common/auth.py": {
+    "mtime": 1782813181.5497725,
+    "ast_hash": "7d65b1e1ed61e406c7f86c293b664032",
+    "semantic_hash": "7d65b1e1ed61e406c7f86c293b664032"
+  },
+  "src/trading_bot/exchanges/binance/common/errors.py": {
+    "mtime": 1782654324.911822,
+    "ast_hash": "77d26f297ff6cdccdc1b49725e9a2c9b",
+    "semantic_hash": "77d26f297ff6cdccdc1b49725e9a2c9b"
+  },
+  "src/trading_bot/exchanges/binance/futures/__init__.py": {
+    "mtime": 1782670481.2068136,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "src/trading_bot/exchanges/binance/futures/broker.py": {
+    "mtime": 1782670820.2409656,
+    "ast_hash": "423e2f8eb788bf174f38dd7083e0abe9",
+    "semantic_hash": "423e2f8eb788bf174f38dd7083e0abe9"
+  },
+  "src/trading_bot/exchanges/binance/futures/order_builder.py": {
+    "mtime": 1782670510.4052455,
+    "ast_hash": "0e9518a935fe7f7e5c625d8deba8386a",
+    "semantic_hash": "0e9518a935fe7f7e5c625d8deba8386a"
+  },
+  "src/trading_bot/exchanges/binance/futures/validator.py": {
+    "mtime": 1782670505.7445927,
+    "ast_hash": "05d12d7f4ee87e468f5b2272ce1343bb",
+    "semantic_hash": "05d12d7f4ee87e468f5b2272ce1343bb"
+  },
+  "src/trading_bot/exchanges/binance/spot/__init__.py": {
+    "mtime": 1782654501.06541,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "src/trading_bot/exchanges/binance/spot/broker.py": {
+    "mtime": 1782670240.0301437,
+    "ast_hash": "de183b76d32c49dc216ef7ac34900cfc",
+    "semantic_hash": "de183b76d32c49dc216ef7ac34900cfc"
+  },
+  "src/trading_bot/exchanges/binance/spot/order_builder.py": {
+    "mtime": 1782654534.4193888,
+    "ast_hash": "ea8f8ba40915a7640396e8f1d7af7746",
+    "semantic_hash": "ea8f8ba40915a7640396e8f1d7af7746"
+  },
+  "src/trading_bot/exchanges/binance/spot/validator.py": {
+    "mtime": 1782654515.7352457,
+    "ast_hash": "5d77e4720899088d33a11eaf82d3828b",
+    "semantic_hash": "5d77e4720899088d33a11eaf82d3828b"
+  },
+  "src/trading_bot/services/__init__.py": {
+    "mtime": 1782812078.4339385,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "src/trading_bot/services/position_manager.py": {
+    "mtime": 1782812090.0539467,
+    "ast_hash": "85ed9d77536084a2111caa609153d9fa",
+    "semantic_hash": "85ed9d77536084a2111caa609153d9fa"
+  },
+  "tests/cli/__init__.py": {
+    "mtime": 1782671092.7583196,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "tests/cli/test_futures_cli.py": {
+    "mtime": 1782671966.878206,
+    "ast_hash": "2706ec48ef919e5d3733aea30710355a",
+    "semantic_hash": "2706ec48ef919e5d3733aea30710355a"
+  },
+  "tests/core/__init__.py": {
+    "mtime": 1782653978.5317202,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "tests/core/domain/__init__.py": {
+    "mtime": 1782653983.8188446,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "tests/core/domain/test_trade.py": {
+    "mtime": 1782654002.8875468,
+    "ast_hash": "90e9d04d9667c635cbf2e6a0e78ae65a",
+    "semantic_hash": "90e9d04d9667c635cbf2e6a0e78ae65a"
+  },
+  "tests/exchanges/__init__.py": {
+    "mtime": 1782654319.3953974,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "tests/exchanges/binance/__init__.py": {
+    "mtime": 1782654320.0283015,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "tests/exchanges/binance/common/__init__.py": {
+    "mtime": 1782654320.3760083,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "tests/exchanges/binance/common/test_auth.py": {
+    "mtime": 1782813260.7057664,
+    "ast_hash": "c88ba4605e72851e9c3e28f6203c9768",
+    "semantic_hash": "c88ba4605e72851e9c3e28f6203c9768"
+  },
+  "tests/exchanges/binance/common/test_errors.py": {
+    "mtime": 1782654335.8924623,
+    "ast_hash": "5ad7ace4c88429f12efd84b46776cba2",
+    "semantic_hash": "5ad7ace4c88429f12efd84b46776cba2"
+  },
+  "tests/exchanges/binance/futures/__init__.py": {
+    "mtime": 1782670483.2829351,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "tests/exchanges/binance/futures/test_futures_broker.py": {
+    "mtime": 1782670832.527201,
+    "ast_hash": "47bf83f59bd5d6a4e215cd5cc49e0d8b",
+    "semantic_hash": "47bf83f59bd5d6a4e215cd5cc49e0d8b"
+  },
+  "tests/exchanges/binance/futures/test_order_builder.py": {
+    "mtime": 1782670495.2485385,
+    "ast_hash": "c18227f7036ec8fd90a76f4e739c7c8a",
+    "semantic_hash": "c18227f7036ec8fd90a76f4e739c7c8a"
+  },
+  "tests/exchanges/binance/futures/test_validator.py": {
+    "mtime": 1782670522.4962902,
+    "ast_hash": "482ed5a72fe3153c757d6fbf57edd276",
+    "semantic_hash": "482ed5a72fe3153c757d6fbf57edd276"
+  },
+  "tests/exchanges/binance/spot/__init__.py": {
+    "mtime": 1782654501.06541,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "tests/exchanges/binance/spot/test_order_builder.py": {
+    "mtime": 1782654524.5889602,
+    "ast_hash": "4f043491d97b0d963381a77ae7f95e18",
+    "semantic_hash": "4f043491d97b0d963381a77ae7f95e18"
+  },
+  "tests/exchanges/binance/spot/test_spot_broker.py": {
+    "mtime": 1782670253.6385343,
+    "ast_hash": "e9939917cda7df386a06c3a51de33b7a",
+    "semantic_hash": "e9939917cda7df386a06c3a51de33b7a"
+  },
+  "tests/exchanges/binance/spot/test_validator.py": {
+    "mtime": 1782654507.8190145,
+    "ast_hash": "4b5106532c385f40567dbca3667421ba",
+    "semantic_hash": "4b5106532c385f40567dbca3667421ba"
+  },
+  "tests/test_config.py": {
+    "mtime": 1782654170.3910422,
+    "ast_hash": "100282f95990edb179c06ab5b2757eec",
+    "semantic_hash": "100282f95990edb179c06ab5b2757eec"
+  },
+  ".superpowers/sdd/progress.md": {
+    "mtime": 1782671411.6031523,
+    "ast_hash": "f5238ce682648bbebdfd73dd8d4001c0",
+    "semantic_hash": "f5238ce682648bbebdfd73dd8d4001c0"
+  },
+  ".superpowers/sdd/task-1-brief.md": {
+    "mtime": 1782653940.723704,
+    "ast_hash": "a5f61f06e2d0f3b224acb923e38fded1",
+    "semantic_hash": "a5f61f06e2d0f3b224acb923e38fded1"
+  },
+  ".superpowers/sdd/task-1-report.md": {
+    "mtime": 1782654047.4593916,
+    "ast_hash": "de0b3ebe59790d7a3c45839db04f3b9a",
+    "semantic_hash": "de0b3ebe59790d7a3c45839db04f3b9a"
+  },
+  ".superpowers/sdd/task-2-brief.md": {
+    "mtime": 1782654140.7736995,
+    "ast_hash": "96835183c18b2f46c6e0b2b7822aa8be",
+    "semantic_hash": "96835183c18b2f46c6e0b2b7822aa8be"
+  },
+  ".superpowers/sdd/task-2-report.md": {
+    "mtime": 1782654219.8142397,
+    "ast_hash": "32e82ef199a610f3b572286eb8b2ed83",
+    "semantic_hash": "32e82ef199a610f3b572286eb8b2ed83"
+  },
+  ".superpowers/sdd/task-3-brief.md": {
+    "mtime": 1782654288.2923756,
+    "ast_hash": "ae61de95e16e0081bbfdfecd48a049be",
+    "semantic_hash": "ae61de95e16e0081bbfdfecd48a049be"
+  },
+  ".superpowers/sdd/task-3-report.md": {
+    "mtime": 1782654373.3132422,
+    "ast_hash": "c9c9932c93d0649a792999680186c1a1",
+    "semantic_hash": "c9c9932c93d0649a792999680186c1a1"
+  },
+  ".superpowers/sdd/task-4-brief.md": {
+    "mtime": 1782654455.8485718,
+    "ast_hash": "67872ca33838a21c051f133d233ba2b5",
+    "semantic_hash": "67872ca33838a21c051f133d233ba2b5"
+  },
+  ".superpowers/sdd/task-4-report.md": {
+    "mtime": 1782654557.7564178,
+    "ast_hash": "89bec17435b67b1471ad1bb1eb4e6bf8",
+    "semantic_hash": "89bec17435b67b1471ad1bb1eb4e6bf8"
+  },
+  ".superpowers/sdd/task-5-brief.md": {
+    "mtime": 1782654639.3061953,
+    "ast_hash": "add331c337552254da10f9478893cf82",
+    "semantic_hash": "add331c337552254da10f9478893cf82"
+  },
+  ".superpowers/sdd/task-5-report.md": {
+    "mtime": 1782670298.8250425,
+    "ast_hash": "240efc0d7e5cee5296118fe3d8d8fb1e",
+    "semantic_hash": "240efc0d7e5cee5296118fe3d8d8fb1e"
+  },
+  ".superpowers/sdd/task-6-brief.md": {
+    "mtime": 1782670451.0598683,
+    "ast_hash": "06a17a2d47c28c87dd63959b8d7bec15",
+    "semantic_hash": "06a17a2d47c28c87dd63959b8d7bec15"
+  },
+  ".superpowers/sdd/task-6-report.md": {
+    "mtime": 1782670555.7409773,
+    "ast_hash": "adcbb009da2cafce1378a75c313cfb3f",
+    "semantic_hash": "adcbb009da2cafce1378a75c313cfb3f"
+  },
+  ".superpowers/sdd/task-7-brief.md": {
+    "mtime": 1782670633.5989056,
+    "ast_hash": "b9af501d30cdbed2936a5714832f4c18",
+    "semantic_hash": "b9af501d30cdbed2936a5714832f4c18"
+  },
+  ".superpowers/sdd/task-8-brief.md": {
+    "mtime": 1782671017.0096567,
+    "ast_hash": "3889be44e969ce9a8d59c3ce46afcdb4",
+    "semantic_hash": "3889be44e969ce9a8d59c3ce46afcdb4"
+  },
+  ".superpowers/sdd/task-8-report.md": {
+    "mtime": 1782671270.7197416,
+    "ast_hash": "ee956b5eee20058ec3b0c48587cd177f",
+    "semantic_hash": "ee956b5eee20058ec3b0c48587cd177f"
+  },
+  ".superpowers/sdd/task-9-brief.md": {
+    "mtime": 1782671411.6107833,
+    "ast_hash": "7514a3c6612a5dba7dd3c7262bee28c0",
+    "semantic_hash": "7514a3c6612a5dba7dd3c7262bee28c0"
+  },
+  ".superpowers/sdd/task-9-report.md": {
+    "mtime": 1782671990.5544431,
+    "ast_hash": "b4f7006137e62f99e980e09611cac9d3",
+    "semantic_hash": "b4f7006137e62f99e980e09611cac9d3"
+  },
+  "docs/HLD.md": {
+    "mtime": 1782813703.4057117,
+    "ast_hash": "84ba0f634770b51d855e92103ec1ca9e",
+    "semantic_hash": "84ba0f634770b51d855e92103ec1ca9e"
+  },
+  "docs/flows/trade-execution-flow.md": {
+    "mtime": 1782813819.0337012,
+    "ast_hash": "68752995fa2ce8214c5ccb80a12d0571",
+    "semantic_hash": "68752995fa2ce8214c5ccb80a12d0571"
+  },
+  "docs/reference/binance-api.md": {
+    "mtime": 1782242801.1052046,
+    "ast_hash": "340c6b434247ef51b34951af84418077",
+    "semantic_hash": "340c6b434247ef51b34951af84418077"
+  },
+  "docs/superpowers/plans/2026-06-28-futures-refactor.md": {
+    "mtime": 1782651747.337554,
+    "ast_hash": "5a8565e1db156758bfca0f5d2e830206",
+    "semantic_hash": "5a8565e1db156758bfca0f5d2e830206"
+  },
+  "docs/superpowers/specs/2026-06-28-futures-refactor-design.md": {
+    "mtime": 1782648285.8294985,
+    "ast_hash": "d3bcec1a10b00c3f0ac7f6029c4ce0ac",
+    "semantic_hash": "d3bcec1a10b00c3f0ac7f6029c4ce0ac"
   }
 }
