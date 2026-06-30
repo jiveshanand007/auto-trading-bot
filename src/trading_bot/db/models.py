@@ -139,6 +139,32 @@ class Position(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_now, onupdate=_now
     )
+    current_stage: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    current_sl_order_id: Mapped[int | None] = mapped_column(Integer)
+    current_tp_order_id: Mapped[int | None] = mapped_column(Integer)
+    leverage: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
+    liquidation_price: Mapped[float | None] = mapped_column(Money)
+    unrealized_pnl: Mapped[float] = mapped_column(Money, default=0)
+    margin_type: Mapped[str] = mapped_column(String(10), default="ISOLATED")
+
+    stages: Mapped[list[TradeStageRecord]] = relationship(back_populates="position")
+
+
+class TradeStageRecord(Base):
+    __tablename__ = "trade_stages"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    account_id: Mapped[int] = mapped_column(ForeignKey("accounts.id"), index=True)
+    position_id: Mapped[int] = mapped_column(ForeignKey("positions.id"), index=True)
+    stage_index: Mapped[int] = mapped_column(Integer, nullable=False)
+    take_profit: Mapped[float] = mapped_column(Money, nullable=False)
+    next_stop_loss: Mapped[float] = mapped_column(Money, nullable=False)
+    activated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+    position: Mapped[Position] = relationship(back_populates="stages")
 
 
 class EquitySnapshot(Base):
