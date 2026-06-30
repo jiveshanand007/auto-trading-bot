@@ -5,6 +5,7 @@ import contextlib
 import sys
 
 import typer
+from rich.panel import Panel
 
 from trading_bot.cli._broker_factory import make_futures_broker
 from trading_bot.cli._display import (
@@ -18,9 +19,11 @@ from trading_bot.cli._display import (
 )
 from trading_bot.config import get_settings
 from trading_bot.core.domain.order import MarginType, Side
-from trading_bot.core.domain.trade import TradePlan, TradeStage
+from trading_bot.core.domain.trade import ActiveTrade, TradePlan, TradeStage
 
 futures_app = typer.Typer(help="USDM futures trading — Binance perpetuals.")
+
+_active_trades: dict[str, ActiveTrade] = {}
 
 
 def _die(msg: str) -> None:
@@ -98,6 +101,7 @@ def buy(
     except Exception as exc:
         _die(str(exc))
         return  # unreachable but satisfies type checker
+    _active_trades[symbol.upper()] = result
     print_active_trade(result)
 
 
@@ -130,6 +134,7 @@ def sell(
     except Exception as exc:
         _die(str(exc))
         return  # unreachable but satisfies type checker
+    _active_trades[symbol.upper()] = result
     print_active_trade(result)
 
 
@@ -176,8 +181,6 @@ def cancel(
     order_id: int = typer.Argument(..., help="Order ID to cancel"),
 ) -> None:
     """Cancel an open futures order."""
-    from rich.panel import Panel
-
     try:
         make_futures_broker().cancel_order(symbol, order_id)
     except Exception as exc:
@@ -194,9 +197,57 @@ def close(
     symbol: str = typer.Argument(..., help="Trading pair to close"),
 ) -> None:
     """Market-close an entire futures position."""
+    sym = symbol.upper()
     try:
-        result = make_futures_broker().close_position(symbol)
+        result = make_futures_broker().close_position(sym)
     except Exception as exc:
         _die(str(exc))
         return  # unreachable but satisfies type checker
+    _active_trades.pop(sym, None)
     console.print(f"[bold green]Position closed:[/bold green] {result}")
+
+
+@futures_app.command()
+def advance(
+    symbol: str = typer.Argument(..., help="Trading pair, e.g. BTCUSDT"),
+) -> None:
+    """Advance to the next stage of a multi-stage trade."""
+    sym = symbol.upper()
+    trade = _active_trades.get(sym)
+    if trade is None:
+        _die(f"No active futures trade found for {sym}. Place a trade first.")
+        return
+    if not trade.has_next_stage:
+        _die(f"Trade for {sym} is already at the final stage.")
+        return
+    broker = make_futures_broker()
+    try:
+        updated = broker.advance_stage(trade)
+    except Exception as exc:
+        _die(str(exc))
+        return
+    _active_trades[sym] = updated
+    console.print(f"[green]Advanced {sym} to stage {updated.current_stage}.[/green]")
+    print_active_trade(updated)
+
+
+@futures_app.command(name="move-sl")
+def move_sl(
+    symbol: str = typer.Argument(..., help="Trading pair, e.g. BTCUSDT"),
+    new_sl: float = typer.Argument(..., help="New stop-loss price"),
+) -> None:
+    """Move the stop-loss on an active futures trade."""
+    sym = symbol.upper()
+    trade = _active_trades.get(sym)
+    if trade is None:
+        _die(f"No active futures trade found for {sym}. Place a trade first.")
+        return
+    broker = make_futures_broker()
+    try:
+        updated = broker.update_stop_loss(trade, new_sl)
+    except Exception as exc:
+        _die(str(exc))
+        return
+    _active_trades[sym] = updated
+    console.print(f"[green]Stop-loss for {sym} moved to {new_sl}.[/green]")
+    print_active_trade(updated)
