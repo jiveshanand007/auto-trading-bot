@@ -1,0 +1,23 @@
+# runner.yaml.example — copy to runner.yaml and fill in your strategy config.
+# runner.yaml is gitignored (contains your personal strategy choices).
+
+capital: 10000.0
+fee_rate: 0.001
+
+strategies:
+  - strategy: ma-crossover
+    symbol: BTCUSDT
+    timeframe: H1
+    market: spot
+    params:
+      fast: 9
+      slow: 21
+
+  - strategy: rsi
+    symbol: ETHUSDT
+    timeframe: H1
+    market: futures
+    params:
+      period: 14
+      oversold: 30
+      overbought: 70
