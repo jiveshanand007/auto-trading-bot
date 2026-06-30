@@ -64,7 +64,7 @@ def test_make_futures_client_testnet(mock_client_class):
     client = make_futures_client(settings)
 
     mock_client_class.assert_called_once_with("test_key", "test_secret")
-    assert mock_client.API_URL == "https://testnet.binancefuture.com/fapi"
+    assert mock_client.FUTURES_URL == "https://testnet.binancefuture.com/fapi"
     assert client is mock_client
 
 
@@ -84,5 +84,5 @@ def test_make_futures_client_live(mock_client_class):
     client = make_futures_client(settings)
 
     mock_client_class.assert_called_once_with("test_key", "test_secret")
-    assert mock_client.API_URL == "https://fapi.binance.com/fapi"
+    assert mock_client.FUTURES_URL == "https://fapi.binance.com/fapi"
     assert client is mock_client

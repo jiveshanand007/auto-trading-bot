@@ -27,11 +27,12 @@ def make_futures_client(settings: Settings) -> Client:
     """Create a Binance Futures (USDM) trading client.
 
     Uses dedicated futures keys when set; falls back to spot keys otherwise.
+    Futures methods use client.FUTURES_URL, not client.API_URL.
     """
     key = settings.binance_futures_api_key or settings.binance_api_key
     secret = settings.binance_futures_api_secret or settings.binance_api_secret
     client = Client(key, secret)
-    client.API_URL = (
+    client.FUTURES_URL = (
         settings.binance_futures_testnet_url
         if settings.binance_futures_testnet
         else settings.binance_futures_live_url

@@ -168,11 +168,18 @@ def orders(
 def balance() -> None:
     """Show futures account balance."""
     try:
-        bal = make_futures_broker().get_balance()
+        raw = make_futures_broker().get_balance()
     except Exception as exc:
         _die(str(exc))
         return  # unreachable but satisfies type checker
-    print_balance_table(bal)
+    summary = {
+        "Available Balance": raw.get("availableBalance", "0"),
+        "Total Wallet Balance": raw.get("totalWalletBalance", "0"),
+        "Total Margin Balance": raw.get("totalMarginBalance", "0"),
+        "Unrealized PnL": raw.get("totalUnrealizedProfit", "0"),
+        "Cross Wallet Balance": raw.get("totalCrossWalletBalance", "0"),
+    }
+    print_balance_table(summary)
 
 
 @futures_app.command()
