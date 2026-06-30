@@ -48,6 +48,12 @@ class Settings(BaseSettings):
     )
 
     # --- Binance Futures (USDM) ---
+    binance_futures_api_key: str = Field(
+        default="", description="Futures testnet/live API key (separate from spot key)."
+    )
+    binance_futures_api_secret: str = Field(
+        default="", description="Futures testnet/live API secret."
+    )
     futures_leverage: int = Field(
         default=5, description="Default leverage for futures trades (1–125)."
     )

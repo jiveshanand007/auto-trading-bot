@@ -26,13 +26,11 @@ def make_spot_client(settings: Settings) -> Client:
 def make_futures_client(settings: Settings) -> Client:
     """Create a Binance Futures (USDM) trading client.
 
-    Args:
-        settings: Application settings containing API credentials and endpoints.
-
-    Returns:
-        Configured binance.client.Client for Futures trading.
+    Uses dedicated futures keys when set; falls back to spot keys otherwise.
     """
-    client = Client(settings.binance_api_key, settings.binance_api_secret)
+    key = settings.binance_futures_api_key or settings.binance_api_key
+    secret = settings.binance_futures_api_secret or settings.binance_api_secret
+    client = Client(key, secret)
     client.API_URL = (
         settings.binance_futures_testnet_url
         if settings.binance_futures_testnet
