@@ -27,6 +27,7 @@ from trading_bot.core.domain.order import Side
 from trading_bot.core.domain.trade import TradePlan, TradeStage
 from trading_bot.market_data.storage import ParquetBarStore
 from trading_bot.market_data.types import Timeframe
+from trading_bot.research.optimizer import optimize as run_optimize
 from trading_bot.risk.manager import RiskManager
 from trading_bot.strategy.ma_crossover import MACrossoverStrategy
 from trading_bot.strategy.rsi import RSIStrategy
@@ -34,6 +35,11 @@ from trading_bot.strategy.rsi import RSIStrategy
 _STRATEGY_MAP = {
     "ma-crossover": MACrossoverStrategy,
     "rsi": RSIStrategy,
+}
+
+_PARAM_GRIDS = {
+    "ma-crossover": {"fast": [5, 9, 14, 21], "slow": [21, 50, 100, 200]},
+    "rsi": {"period": [7, 14, 21], "oversold": [25, 30, 35], "overbought": [65, 70, 75]},
 }
 
 _DATA_ROOT = Path("data")
@@ -234,6 +240,91 @@ def backtest(
 
     if len(strategy) > 1:
         console.print(compare_strategies(all_metrics))
+
+
+@app.command()
+def optimize(
+    strategy: str = typer.Option("ma-crossover", "--strategy", help="Strategy to optimize"),
+    symbol: str = typer.Option("BTCUSDT", "--symbol"),
+    timeframe: str = typer.Option("H1", "--timeframe"),
+    train_ratio: float = typer.Option(0.67, "--train-ratio", help="Fraction used for training"),
+    capital: float = typer.Option(10_000.0, "--capital"),
+    fee: float = typer.Option(0.001, "--fee"),
+) -> None:
+    """Grid-search best params on train split, validate on unseen test split."""
+    try:
+        tf = Timeframe(timeframe)
+    except ValueError:
+        _die(f"Unknown timeframe '{timeframe}'.")
+
+    if strategy not in _STRATEGY_MAP:
+        _die(f"Unknown strategy '{strategy}'. Valid: {list(_STRATEGY_MAP)}")
+
+    store = ParquetBarStore(_DATA_ROOT)
+    bars = store.read(symbol, tf)
+
+    if not bars:
+        console.print(f"[yellow]No local data for {symbol}/{timeframe}. Downloading…[/yellow]")
+        try:
+            from trading_bot.market_data.binance_client import BinanceKlineClient
+            from trading_bot.market_data.downloader import KlineDownloader
+
+            n = KlineDownloader(BinanceKlineClient(), store).download(
+                symbol, tf,
+                datetime(2017, 1, 1, tzinfo=timezone.utc),
+                datetime.now(tz=timezone.utc),
+            )
+            console.print(f"[green]Downloaded {n} bars.[/green]")
+            bars = store.read(symbol, tf)
+        except Exception as exc:
+            _die(f"Auto-download failed: {exc}")
+
+    if not bars:
+        _die(f"No bars available for {symbol}/{timeframe}.")
+
+    n_train = int(len(bars) * train_ratio)
+    n_test = len(bars) - n_train
+    console.print(
+        f"[dim]Total bars: {len(bars)} | "
+        f"Train: {n_train} ({train_ratio:.0%}) | "
+        f"Test: {n_test} ({1-train_ratio:.0%})[/dim]"
+    )
+
+    param_grid = _PARAM_GRIDS[strategy]
+    n_combos = 1
+    for v in param_grid.values():
+        n_combos *= len(v)
+    console.print(f"[dim]Grid: {param_grid} → {n_combos} combinations[/dim]")
+
+    with console.status("[bold green]Optimizing…[/bold green]"):
+        result = run_optimize(
+            _STRATEGY_MAP[strategy], param_grid, bars,
+            train_ratio=train_ratio,
+            initial_capital=capital,
+            fee_rate=fee,
+        )
+
+    tr = result.train_metrics
+    te = result.test_metrics
+    ratio_color = "green" if result.overfitting_ratio >= 0.5 else "red"
+
+    console.print(Panel(
+        f"[bold]Best params:[/bold] {result.best_params}\n"
+        f"[bold]Data:[/bold] {result.train_start:%Y-%m-%d} → {result.test_end:%Y-%m-%d}  "
+        f"({result.n_total_bars} bars)\n\n"
+        f"{'Metric':<18} {'Train':>10} {'Test (OOS)':>12}\n"
+        f"{'-'*42}\n"
+        f"{'Return %':<18} {tr.total_return_pct:>10.2f} {te.total_return_pct:>12.2f}\n"
+        f"{'Sharpe':<18} {tr.sharpe:>10.2f} {te.sharpe:>12.2f}\n"
+        f"{'Sortino':<18} {tr.sortino:>10.2f} {te.sortino:>12.2f}\n"
+        f"{'Max DD %':<18} {tr.max_drawdown_pct:>10.2f} {te.max_drawdown_pct:>12.2f}\n"
+        f"{'Win Rate %':<18} {tr.win_rate_pct:>10.2f} {te.win_rate_pct:>12.2f}\n"
+        f"{'Profit Factor':<18} {tr.profit_factor:>10.2f} {te.profit_factor:>12.2f}\n"
+        f"{'Trades':<18} {tr.total_trades:>10} {te.total_trades:>12}\n\n"
+        f"Overfitting ratio: [{ratio_color}]{result.overfitting_ratio:.2f}[/{ratio_color}]"
+        f"  (test÷train Sharpe — target ≥ 0.5)",
+        title=f"Optimization: {result.strategy_name} on {symbol}/{timeframe}",
+    ))
 
 
 if __name__ == "__main__":
