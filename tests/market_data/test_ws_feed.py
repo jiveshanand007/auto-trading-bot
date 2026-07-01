@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 from datetime import datetime, timezone
 from decimal import Decimal
+from unittest.mock import patch
 
 from trading_bot.market_data.types import Bar, Timeframe
 from trading_bot.market_data.ws_feed import WsFeed, _kline_msg_to_bar
@@ -24,6 +25,16 @@ def _kline_msg(symbol: str, open_ms: int, closed: bool) -> dict:
             "v": "100.0",
             "x": closed,
         },
+    }
+
+
+def _malformed_closed_kline_msg(symbol: str) -> dict:
+    # "x": True (closed) but missing the OHLCV fields _kline_msg_to_bar needs,
+    # so building the Bar raises a KeyError mid-stream.
+    return {
+        "e": "kline",
+        "s": symbol,
+        "k": {"t": 1_700_000_000_000, "T": 1_700_003_600_000, "x": True},
     }
 
 
@@ -112,3 +123,32 @@ async def test_ws_feed_ignores_open_klines():
         ws_module.BinanceSocketManager = original_bsm
 
     assert queue.empty()
+
+
+async def test_ws_feed_logs_and_skips_malformed_kline_then_processes_next_message():
+    """Covers the defensive-handling requirement: one malformed kline message must
+    not crash the whole feed. The feed should log the error and keep going, so the
+    next valid message still lands on the queue."""
+    queue: asyncio.Queue[Bar] = asyncio.Queue()
+    feed = WsFeed("BTCUSDT", Timeframe.H1, queue)
+    messages = [
+        _malformed_closed_kline_msg("BTCUSDT"),
+        _kline_msg("BTCUSDT", 1_700_000_000_000, closed=True),
+    ]
+
+    import trading_bot.market_data.ws_feed as ws_module
+    original_bsm = ws_module.BinanceSocketManager
+    ws_module.BinanceSocketManager = lambda client: _FakeBSM(messages)  # type: ignore[assignment]
+    try:
+        with patch.object(ws_module.log, "error") as mock_error:
+            await feed.run(None)  # type: ignore[arg-type]
+    finally:
+        ws_module.BinanceSocketManager = original_bsm
+
+    assert mock_error.called
+
+    bars = []
+    while not queue.empty():
+        bars.append(queue.get_nowait())
+    assert len(bars) == 1
+    assert bars[0].close == Decimal("51000.00")

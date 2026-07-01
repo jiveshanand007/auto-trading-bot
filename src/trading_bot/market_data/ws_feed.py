@@ -6,7 +6,10 @@ from decimal import Decimal
 
 from binance import AsyncClient, BinanceSocketManager
 
+from trading_bot.logging_config import get_logger
 from trading_bot.market_data.types import Bar, Timeframe
+
+log = get_logger(__name__)
 
 
 def _kline_msg_to_bar(msg: dict, symbol: str, timeframe: Timeframe) -> Bar:
@@ -42,6 +45,10 @@ class WsFeed:
         interval = self._timeframe.binance_interval
         async with bm.kline_socket(symbol=self._symbol, interval=interval) as stream:
             async for msg in stream:
-                if msg.get("k", {}).get("x"):
-                    bar = _kline_msg_to_bar(msg, self._symbol, self._timeframe)
-                    await self._queue.put(bar)
+                try:
+                    if msg.get("k", {}).get("x"):
+                        bar = _kline_msg_to_bar(msg, self._symbol, self._timeframe)
+                        await self._queue.put(bar)
+                except Exception as exc:
+                    log.error("ws_feed_malformed_message", symbol=self._symbol, error=str(exc))
+                    continue

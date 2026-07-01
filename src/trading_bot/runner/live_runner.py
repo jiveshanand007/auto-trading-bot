@@ -3,7 +3,8 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import signal as _signal
-from datetime import datetime, timezone
+from collections.abc import Callable
+from datetime import date, datetime, timezone
 
 import uvloop
 from binance import AsyncClient
@@ -43,7 +44,32 @@ def _futures_equity_and_cash(balance: dict) -> tuple[float, float]:
     return equity, cash
 
 
-async def _portfolio_state_from_broker(broker, symbol: str, market: str) -> PortfolioState:
+class _DailyEquityTracker:
+    """Remembers a market's equity at the start of the current UTC day.
+
+    `RiskManager`'s daily-drawdown circuit breaker needs a `daily_start_equity`
+    that stays fixed for the whole UTC day, not the current equity recomputed on
+    every call (which would make the drawdown check always read 0). Instantiate
+    one tracker per market (spot/futures) — daily drawdown is account-level per
+    market, not per-symbol.
+    """
+
+    def __init__(self, now_fn: Callable[[], datetime] | None = None) -> None:
+        self._now_fn = now_fn or (lambda: datetime.now(timezone.utc))
+        self._date: date | None = None
+        self._start_equity: float = 0.0
+
+    def start_equity_for(self, current_equity: float) -> float:
+        today = self._now_fn().date()
+        if self._date != today:
+            self._date = today
+            self._start_equity = current_equity
+        return self._start_equity
+
+
+async def _portfolio_state_from_broker(
+    broker, symbol: str, market: str, tracker: _DailyEquityTracker
+) -> PortfolioState:
     balance = await asyncio.to_thread(broker.get_balance)
     positions = await asyncio.to_thread(broker.get_positions)
 
@@ -56,7 +82,7 @@ async def _portfolio_state_from_broker(broker, symbol: str, market: str) -> Port
         equity=equity,
         cash=cash,
         open_positions=positions,
-        daily_start_equity=equity,
+        daily_start_equity=tracker.start_equity_for(equity),
         is_halted=False,
     )
 
@@ -74,9 +100,15 @@ async def _warmup_bars(symbol: str, timeframe: Timeframe) -> list[Bar]:
 
 
 async def _process_bar(
-    bar: Bar, strategy, risk: RiskManager, broker, dry_run: bool, market: str
+    bar: Bar,
+    strategy,
+    risk: RiskManager,
+    broker,
+    dry_run: bool,
+    market: str,
+    daily_tracker: _DailyEquityTracker,
 ) -> None:
-    portfolio = await _portfolio_state_from_broker(broker, bar.symbol, market)
+    portfolio = await _portfolio_state_from_broker(broker, bar.symbol, market, daily_tracker)
     signal = strategy.on_bar(bar, portfolio)
     if signal is None:
         return
@@ -95,10 +127,33 @@ async def _process_bar(
     log.info("trade_placed", symbol=bar.symbol, order_id=result.entry_order_id)
 
 
+async def _next_bar(
+    queue: asyncio.Queue[Bar], feed_task: asyncio.Task, symbol: str
+) -> Bar:
+    """Wait for the next bar, but race it against the feed task so a dead feed
+    (ended cleanly or raised) surfaces immediately instead of hanging forever on
+    `queue.get()`.
+    """
+    get_task = asyncio.ensure_future(queue.get())
+    done, _pending = await asyncio.wait(
+        {get_task, feed_task}, return_when=asyncio.FIRST_COMPLETED
+    )
+    if feed_task in done:
+        get_task.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await get_task
+        exc = feed_task.exception()
+        if exc is not None:
+            raise exc
+        raise RuntimeError(f"WsFeed for {symbol} ended unexpectedly")
+    return get_task.result()
+
+
 async def _run_symbol(
     strategy_cfg: StrategyConfig,
     runner_cfg: RunnerConfig,
     risk: RiskManager,
+    daily_tracker: _DailyEquityTracker,
     ws_client: AsyncClient,
     dry_run: bool,
 ) -> None:
@@ -113,7 +168,7 @@ async def _run_symbol(
 
     bars = await _warmup_bars(symbol, timeframe)
     bound_log.info("warmup_complete", bars=len(bars))
-    portfolio = await _portfolio_state_from_broker(broker, symbol, market)
+    portfolio = await _portfolio_state_from_broker(broker, symbol, market, daily_tracker)
     for bar in bars:
         strategy.on_bar(bar, portfolio)
 
@@ -124,8 +179,8 @@ async def _run_symbol(
 
     try:
         while True:
-            bar = await queue.get()
-            await _process_bar(bar, strategy, risk, broker, dry_run, market)
+            bar = await _next_bar(queue, feed_task, symbol)
+            await _process_bar(bar, strategy, risk, broker, dry_run, market, daily_tracker)
     except asyncio.CancelledError:
         feed_task.cancel()
         with contextlib.suppress(asyncio.CancelledError):
@@ -145,6 +200,8 @@ async def run(config_path: str, dry_run: bool = False) -> None:
 
     spot_risk = RiskManager()
     futures_risk = RiskManager()
+    spot_daily = _DailyEquityTracker()
+    futures_daily = _DailyEquityTracker()
     ws_client = await AsyncClient.create()
 
     tasks = [
@@ -152,6 +209,7 @@ async def run(config_path: str, dry_run: bool = False) -> None:
             _run_symbol(
                 s, cfg,
                 spot_risk if s.market == "spot" else futures_risk,
+                spot_daily if s.market == "spot" else futures_daily,
                 ws_client, dry_run,
             ),
             name=f"{s.strategy}:{s.symbol}",
