@@ -327,5 +327,19 @@ def optimize(
     ))
 
 
+@app.command()
+def run(
+    config: str = typer.Option("runner.yaml", "--config", help="Path to runner config YAML"),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Log signals without placing orders"),
+) -> None:
+    """Start the live strategy runner (async WebSocket loop)."""
+    if not Path(config).exists():
+        _die(f"Config file not found: {config}. Copy runner.yaml.example to get started.")
+    from trading_bot.runner.live_runner import main as _run_main
+
+    console.print(f"[green]Starting live runner[/green] config={config} dry_run={dry_run}")
+    _run_main(config, dry_run)
+
+
 if __name__ == "__main__":
     app()

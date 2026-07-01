@@ -116,3 +116,23 @@ def test_cancel_command():
 
     assert result.exit_code == 0
     mock_broker.cancel_order.assert_called_once_with("BTCUSDT", 12345)
+
+
+def test_run_command_missing_config_exits_nonzero(tmp_path):
+    missing_config = tmp_path / "does-not-exist.yaml"
+
+    result = runner.invoke(app, ["run", "--config", str(missing_config)])
+
+    assert result.exit_code != 0
+    assert "Config file not found" in result.output
+
+
+def test_run_command_calls_live_runner_main(tmp_path):
+    config_path = tmp_path / "runner.yaml"
+    config_path.write_text("symbols: []\n")
+
+    with patch("trading_bot.runner.live_runner.main") as mock_main:
+        result = runner.invoke(app, ["run", "--config", str(config_path), "--dry-run"])
+
+    assert result.exit_code == 0
+    mock_main.assert_called_once_with(str(config_path), True)

@@ -8,3 +8,4 @@ data/
 *.parquet
 .pytest_cache/
 .ruff_cache/
+runner.yaml

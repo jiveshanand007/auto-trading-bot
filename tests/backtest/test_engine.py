@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-import pytest
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
+
+import pytest
 
 from trading_bot.backtest.engine import run_backtest, signal_to_plan
 from trading_bot.backtest.result import BacktestResult

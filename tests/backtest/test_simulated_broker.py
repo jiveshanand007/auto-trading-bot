@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-import pytest
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
+
+import pytest
 
 from trading_bot.backtest.simulated_broker import SimulatedBroker
 from trading_bot.core.domain.order import Side
@@ -20,12 +21,12 @@ def _bar(
     o = Decimal(str(open_ if open_ is not None else close))
     c = Decimal(str(close))
     h = Decimal(str(high if high is not None else float(max(o, c)) + 1.0))
-    l = Decimal(str(low if low is not None else float(min(o, c)) - 1.0))
+    low_ = Decimal(str(low if low is not None else float(min(o, c)) - 1.0))
     t0 = datetime(2024, 1, 1, tzinfo=timezone.utc) + timedelta(hours=bar_index)
     return Bar(
         symbol="BTCUSDT", timeframe=Timeframe.H1,
         open_time=t0, close_time=t0 + timedelta(hours=1),
-        open=o, high=h, low=l, close=c, volume=Decimal("100"),
+        open=o, high=h, low=low_, close=c, volume=Decimal("100"),
     )
 
 

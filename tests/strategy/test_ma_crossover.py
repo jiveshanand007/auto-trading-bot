@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-import pytest
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
+
+import pytest
 
 from trading_bot.core.domain.order import Side
 from trading_bot.core.domain.portfolio import PortfolioState
