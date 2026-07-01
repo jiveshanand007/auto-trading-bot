@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import signal as _signal
 from datetime import datetime, timezone
 
@@ -24,13 +25,36 @@ log = get_logger(__name__)
 _WARMUP_BARS = 500
 
 
-def _portfolio_state_from_broker(broker, symbol: str) -> PortfolioState:
-    balance = broker.get_balance()
-    equity = float(list(balance.values())[0].get("free", 0.0))
-    positions = broker.get_positions(symbol)
+def _spot_quote_asset(symbol: str) -> str:
+    # Mirrors trading_bot.cli._display's quote-asset derivation.
+    return "USDT" if "USDT" in symbol else "BUSD"
+
+
+def _spot_equity_and_cash(balance: dict, symbol: str) -> tuple[float, float]:
+    quote = balance.get(_spot_quote_asset(symbol), {})
+    free = float(quote.get("free", 0.0))
+    locked = float(quote.get("locked", 0.0))
+    return free + locked, free
+
+
+def _futures_equity_and_cash(balance: dict) -> tuple[float, float]:
+    equity = float(balance.get("totalMarginBalance", 0.0))
+    cash = float(balance.get("availableBalance", 0.0))
+    return equity, cash
+
+
+async def _portfolio_state_from_broker(broker, symbol: str, market: str) -> PortfolioState:
+    balance = await asyncio.to_thread(broker.get_balance)
+    positions = await asyncio.to_thread(broker.get_positions)
+
+    if market == "futures":
+        equity, cash = _futures_equity_and_cash(balance)
+    else:
+        equity, cash = _spot_equity_and_cash(balance, symbol)
+
     return PortfolioState(
         equity=equity,
-        cash=equity,
+        cash=cash,
         open_positions=positions,
         daily_start_equity=equity,
         is_halted=False,
@@ -50,9 +74,9 @@ async def _warmup_bars(symbol: str, timeframe: Timeframe) -> list[Bar]:
 
 
 async def _process_bar(
-    bar: Bar, strategy, risk: RiskManager, broker, dry_run: bool
+    bar: Bar, strategy, risk: RiskManager, broker, dry_run: bool, market: str
 ) -> None:
-    portfolio = _portfolio_state_from_broker(broker, bar.symbol)
+    portfolio = await _portfolio_state_from_broker(broker, bar.symbol, market)
     signal = strategy.on_bar(bar, portfolio)
     if signal is None:
         return
@@ -79,16 +103,17 @@ async def _run_symbol(
     dry_run: bool,
 ) -> None:
     symbol = strategy_cfg.symbol
+    market = strategy_cfg.market
     timeframe = Timeframe(strategy_cfg.timeframe)
     bound_log = log.bind(symbol=symbol, strategy=strategy_cfg.strategy)
 
-    broker = make_spot_broker() if strategy_cfg.market == "spot" else make_futures_broker()
+    broker = make_spot_broker() if market == "spot" else make_futures_broker()
     selector = ConfigSelector(runner_cfg)
     strategy = selector.select(symbol, timeframe)
 
     bars = await _warmup_bars(symbol, timeframe)
     bound_log.info("warmup_complete", bars=len(bars))
-    portfolio = _portfolio_state_from_broker(broker, symbol)
+    portfolio = await _portfolio_state_from_broker(broker, symbol, market)
     for bar in bars:
         strategy.on_bar(bar, portfolio)
 
@@ -100,13 +125,17 @@ async def _run_symbol(
     try:
         while True:
             bar = await queue.get()
-            await _process_bar(bar, strategy, risk, broker, dry_run)
+            await _process_bar(bar, strategy, risk, broker, dry_run, market)
     except asyncio.CancelledError:
         feed_task.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await feed_task
         raise
     except Exception as exc:
         bound_log.error("symbol_error", error=str(exc))
         feed_task.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await feed_task
         raise
 
 
